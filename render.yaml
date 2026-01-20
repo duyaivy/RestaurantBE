@@ -1,0 +1,34 @@
+services:
+  # Web Service (Django API)
+  - type: web
+    name: restaurantbe-api
+    runtime: docker
+    plan: free
+    branch: main
+    healthCheckPath: /admin/
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: restaurantBE.settings.production
+      - key: ENV
+        value: prod
+      - key: SECRET_KEY
+        generateValue: true
+      # Supabase PostgreSQL Connection
+      - key: DB_NAME
+        sync: false  # Set manually from Supabase
+      - key: DB_USERNAME
+        sync: false  # Set manually from Supabase
+      - key: DB_PASSWORD
+        sync: false  # Set manually from Supabase
+      - key: DB_HOST
+        sync: false  # Set manually from Supabase (e.g., db.xxx.supabase.co)
+      - key: DB_PORT
+        value: "6543"  # Supabase uses port 6543 for connection pooling
+      - key: ALLOWED_HOSTS
+        value: "*"
+      - key: CORS_ALLOWED_ORIGINS
+        value: "https://your-frontend-domain.com"
+      - key: HOST
+        sync: false
+
+# No database service needed - using Supabase (free forever!)

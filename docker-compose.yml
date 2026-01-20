@@ -1,0 +1,53 @@
+version: '3.8'
+
+networks:
+  app-network:
+    driver: bridge
+
+services:
+  db:
+    image: postgres:14.2
+    container_name: postgres-db
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db-data:/data/postgres
+    networks:
+      - app-network
+
+  init_dev:
+    build:
+      context: .
+    ports:
+      - 8000:80
+    environment:
+      DB_HOST: postgres-db
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+    env_file:
+      - .env
+    depends_on:
+      - db
+    volumes:
+      - ./scripts/wait-for-it.sh:/code/scripts/wait-for-it.sh
+
+    command: [
+      '/bin/sh',   
+      '-c',
+      'chmod +x /code/scripts/wait-for-it.sh && /code/scripts/wait-for-it.sh postgres-db:5432 --timeout=30', 
+    ]
+
+    entrypoint: [
+      ./docker-entrypoint.sh
+    ]
+
+    networks:
+      - app-network  
+
+volumes:
+  db-data:
