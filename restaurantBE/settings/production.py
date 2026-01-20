@@ -10,8 +10,9 @@ SECRET_KEY = os.getenv(
     "SECRET_KEY", "django-insecure-*$0b8ibx7uzk45cm+fxw7*jj(yzi2ye!l4+!dnyxa-u-nbuz=q"
 )
 
-ALLOWED_HOSTS = [os.getenv("ALLOWED_HOSTS", "*")]
-
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", ".onrender.com,localhost,127.0.0.1").split(
+    ","
+)
 HOST = os.getenv("HOST", "http://localhost:8000/")
 
 # Database
