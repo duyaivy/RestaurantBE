@@ -9,6 +9,8 @@ from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
+from restaurantBE.accounts.views import RegisterAPIView
+
 schema_view = get_schema_view(
     openapi.Info(
         title="RestaurantBE API",
@@ -30,6 +32,5 @@ urlpatterns = [
     # api route
     path("api/auth/login/", TokenObtainPairView.as_view(), name="login"),
     path("api/auth/refresh-token/", TokenRefreshView.as_view(), name="refresh_token"),
-    path("api/", include("restaurantBE.users.urls"), name="users"),
-    path("api/", include("restaurantBE.roles.urls"), name="roles"),
+    path("api/", include("restaurantBE.accounts.urls"), name="accounts"),
 ]

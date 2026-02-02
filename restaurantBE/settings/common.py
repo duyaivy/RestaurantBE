@@ -31,8 +31,7 @@ INSTALLED_APPS = [
     "django_seed",
     "corsheaders",
     "drf_yasg",
-    "restaurantBE.users",
-    "restaurantBE.roles",
+    "restaurantBE.accounts",
 ]
 
 MIDDLEWARE = [
@@ -128,7 +127,7 @@ REST_FRAMEWORK = {
 }
 
 # auth config
-AUTH_USER_MODEL = "users.User"
+AUTH_USER_MODEL = "accounts.Account"
 
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_EMAIL_REQUIRED = True
