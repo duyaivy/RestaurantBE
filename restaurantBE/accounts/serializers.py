@@ -1,6 +1,6 @@
 import re
 from rest_framework import serializers
-
+from django.utils.translation import gettext as _
 from restaurantBE.accounts.models import Account
 
 
@@ -37,15 +37,13 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def validate_email(self, value):
         if Account.objects.filter(email=value).exists():
-            raise serializers.ValidationError("Email đã tồn tại.")
+            raise serializers.ValidationError(_("email_exists"))
         return value.lower()
 
     def validate_password(self, value):
         pattern = r"^(?=.*[a-z])(?=.*[^A-Za-z0-9]).{8,}$"
         if not re.match(pattern, value):
-            raise serializers.ValidationError(
-                "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ cái và số."
-            )
+            raise serializers.ValidationError(_("pw_invalid"))
         return value
 
     def create(self, validated_data):

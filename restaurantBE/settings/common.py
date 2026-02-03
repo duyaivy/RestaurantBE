@@ -28,7 +28,6 @@ INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
     "rest_framework",
-    "django_seed",
     "corsheaders",
     "drf_yasg",
     "restaurantBE.accounts",
@@ -40,6 +39,7 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
+    "django.middleware.locale.LocaleMiddleware",  # Middleware đa ngôn ngữ
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -89,15 +89,21 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "vi"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Asia/Ho_Chi_Minh"
 
 USE_I18N = True
 
 USE_L10N = True
 
 USE_TZ = True
+
+LANGUAGES = [("vi", "Tiếng Việt"), ("en", "English")]
+
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, "locale"),
+]
 
 
 # Static files (CSS, JavaScript, Images)
@@ -108,7 +114,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATIC_URL = "/static/"
 
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, "<app_name>/static"),
+    os.path.join(BASE_DIR, "restaurantBE/static"),
     os.path.join(BASE_DIR, "static"),
 )
 
@@ -136,8 +142,8 @@ ACCOUNT_AUTHENTICATION_METHOD = "email"
 
 # JWT config
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=15),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": True,
     "ALGORITHM": "HS256",

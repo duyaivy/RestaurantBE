@@ -1,0 +1,332 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: restaurantBE 1.0\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# ====================
+# COMMON MESSAGES
+# ====================
+msgid "hello"
+msgstr "Hello"
+
+msgid "welcome"
+msgstr "Welcome"
+
+msgid "goodbye"
+msgstr "Goodbye"
+
+msgid "success"
+msgstr "Success"
+
+msgid "error"
+msgstr "Error"
+
+msgid "warning"
+msgstr "Warning"
+
+msgid "info"
+msgstr "Information"
+
+# ====================
+# EMAIL VALIDATION
+# ====================
+msgid "email_required"
+msgstr "Email is required"
+
+msgid "email_blank"
+msgstr "Email cannot be blank"
+
+msgid "email_invalid"
+msgstr "Invalid email address"
+
+msgid "email_min_length"
+msgstr "Email must be at least 6 characters"
+
+msgid "email_max_length"
+msgstr "Email must not exceed 255 characters"
+
+msgid "email_exists"
+msgstr "Email already exists"
+
+# ====================
+# PASSWORD VALIDATION
+# ====================
+msgid "password_required"
+msgstr "Password is required"
+
+msgid "password_blank"
+msgstr "Password cannot be blank"
+
+msgid "password_min_length"
+msgstr "Password must be at least 8 characters"
+
+msgid "password_max_length"
+msgstr "Password must not exceed 128 characters"
+
+msgid "password_invalid"
+msgstr "Password must contain at least one lowercase letter and number"
+
+msgid "password_too_short"
+msgstr "Password too short"
+
+msgid "password_not_match"
+msgstr "Passwords do not match"
+
+# ====================
+# AUTHENTICATION
+# ====================
+msgid "login_success"
+msgstr "Login successful"
+
+msgid "logout_success"
+msgstr "Logout successful"
+
+msgid "register_success"
+msgstr "Register successful"
+
+msgid "register_failed"
+msgstr "Register fail"
+
+msgid "invalid_credentials"
+msgstr "Invalid credentials"
+
+msgid "user_not_found"
+msgstr "User not found"
+
+msgid "account_created"
+msgstr "Account created successfully"
+
+msgid "account_updated"
+msgstr "Account updated successfully"
+
+msgid "account_deleted"
+msgstr "Account deleted successfully"
+
+# ====================
+# VALIDATION
+# ====================
+msgid "field_required"
+msgstr "This field is required"
+
+msgid "field_blank"
+msgstr "This field cannot be blank"
+
+msgid "invalid_format"
+msgstr "Invalid format"
+
+msgid "invalid_value"
+msgstr "Invalid value"
+
+msgid "value_too_long"
+msgstr "Value too long"
+
+msgid "value_too_short"
+msgstr "Value too short"
+
+# ====================
+# HTTP STATUS
+# ====================
+msgid "bad_request"
+msgstr "Bad Request"
+
+msgid "unauthorized"
+msgstr "Unauthorized"
+
+msgid "forbidden"
+msgstr "Forbidden"
+
+msgid "not_found"
+msgstr "Not Found"
+
+msgid "method_not_allowed"
+msgstr "Method Not Allowed"
+
+msgid "internal_error"
+msgstr "Internal Server Error"
+
+msgid "service_unavailable"
+msgstr "Service Unavailable"
+
+# ====================
+# CRUD OPERATIONS
+# ====================
+msgid "created_success"
+msgstr "Created successfully"
+
+msgid "updated_success"
+msgstr "Updated successfully"
+
+msgid "deleted_success"
+msgstr "Deleted successfully"
+
+msgid "retrieved_success"
+msgstr "Retrieved successfully"
+
+msgid "operation_success"
+msgstr "Operation successful"
+
+msgid "operation_failed"
+msgstr "Operation failed"
+
+# ====================
+# COMMON ACTIONS
+# ====================
+msgid "save"
+msgstr "Save"
+
+msgid "cancel"
+msgstr "Cancel"
+
+msgid "delete"
+msgstr "Delete"
+
+msgid "edit"
+msgstr "Edit"
+
+msgid "view"
+msgstr "View"
+
+msgid "search"
+msgstr "Search"
+
+msgid "filter"
+msgstr "Filter"
+
+msgid "export"
+msgstr "Export"
+
+msgid "import"
+msgstr "Import"
+
+msgid "download"
+msgstr "Download"
+
+msgid "upload"
+msgstr "Upload"
+
+msgid "submit"
+msgstr "Submit"
+
+msgid "confirm"
+msgstr "Confirm"
+
+msgid "close"
+msgstr "Close"
+
+msgid "back"
+msgstr "Back"
+
+msgid "continue"
+msgstr "Continue"
+
+# ====================
+# PAGINATION
+# ====================
+msgid "next"
+msgstr "Next"
+
+msgid "previous"
+msgstr "Previous"
+
+msgid "first"
+msgstr "First"
+
+msgid "last"
+msgstr "Last"
+
+msgid "page"
+msgstr "Page"
+
+msgid "of"
+msgstr "of"
+
+msgid "items"
+msgstr "items"
+
+msgid "no_results"
+msgstr "No results found"
+
+msgid "showing_results"
+msgstr "Showing results"
+
+# ====================
+# DATE AND TIME
+# ====================
+msgid "today"
+msgstr "Today"
+
+msgid "yesterday"
+msgstr "Yesterday"
+
+msgid "tomorrow"
+msgstr "Tomorrow"
+
+msgid "date"
+msgstr "Date"
+
+msgid "time"
+msgstr "Time"
+
+msgid "created_at"
+msgstr "Created at"
+
+msgid "updated_at"
+msgstr "Updated at"
+
+msgid "deleted_at"
+msgstr "Deleted at"
+
+# ====================
+# RESTAURANT SPECIFIC
+# ====================
+msgid "menu"
+msgstr "Menu"
+
+msgid "order"
+msgstr "Order"
+
+msgid "table"
+msgstr "Table"
+
+msgid "reservation"
+msgstr "Reservation"
+
+msgid "customer"
+msgstr "Customer"
+
+msgid "staff"
+msgstr "Staff"
+
+msgid "category"
+msgstr "Category"
+
+msgid "price"
+msgstr "Price"
+
+msgid "quantity"
+msgstr "Quantity"
+
+msgid "total"
+msgstr "Total"
+
+msgid "status"
+msgstr "Status"
+
+msgid "active"
+msgstr "Active"
+
+msgid "inactive"
+msgstr "Inactive"
+
+msgid "pending"
+msgstr "Pending"
+
+msgid "completed"
+msgstr "Completed"
+
+msgid "cancelled"
+msgstr "Cancelled"
