@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
     "rest_framework",
+    "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
     "drf_yasg",
     "restaurantBE.accounts",
@@ -130,6 +131,7 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 10,
+    "EXCEPTION_HANDLER": "restaurantBE.utils.exceptions.CustomExceptionHandler",
 }
 
 # auth config
@@ -144,10 +146,10 @@ ACCOUNT_AUTHENTICATION_METHOD = "email"
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=15),
-    "ROTATE_REFRESH_TOKENS": False,
+    "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "ALGORITHM": "HS256",
-    "SIGNING_KEY": "t3llqPQAgIfXbfFwlChpujYOFsjXz2sI",
+    "SIGNING_KEY": "t3llqPQAgIfXbfFwlChpabcdujYOFsjXz2sI",
     "VERIFYING_KEY": None,
     "AUTH_HEADER_TYPES": ("Bearer",),
     "USER_ID_FIELD": "id",

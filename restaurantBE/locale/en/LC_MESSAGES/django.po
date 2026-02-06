@@ -52,6 +52,10 @@ msgstr "Email must not exceed 255 characters"
 msgid "email_exists"
 msgstr "Email already exists"
 
+msgid "validation_error"
+msgstr "Error when validate data fields"
+
+
 # ====================
 # PASSWORD VALIDATION
 # ====================

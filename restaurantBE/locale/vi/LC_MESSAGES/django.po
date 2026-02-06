@@ -52,6 +52,25 @@ msgstr "Email không được vượt quá 255 ký tự"
 msgid "email_exists"
 msgstr "Email đã tồn tại"
 
+# TOKEN
+#
+msgid "validation_error"
+msgstr "Lỗi trong quá trình xác thực dữ liệu"
+
+msgid "invalid_token"
+msgstr "Token không hợp lệ"
+
+msgid "refresh_token_required"
+msgstr "Refresh token là bắt buộc"
+
+msgid "token_refresh_failed"
+msgstr "Refresh token thất bại, lỗi không xác định"
+
+msgid "token_refresh_success"
+msgstr "Refresh token thành công"
+
+
+
 # ====================
 # PASSWORD VALIDATION
 # ====================
