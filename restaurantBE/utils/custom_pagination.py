@@ -8,4 +8,4 @@ class CustomPagination(LimitOffsetPagination):
     min_offset = 0
     max_offset = 50
     limit_query_param = "limit"
-    offset_query_param = "offset"
+    offset_query_param = "page"
