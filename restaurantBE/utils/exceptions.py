@@ -12,13 +12,6 @@ def CustomExceptionHandler(exc, context):
     if response is None:
         return response
 
-    if isinstance(exc, (InvalidToken, TokenError)):
-        return apiError(
-            errors=response.data,
-            msg="token_invalid",
-            status=status.HTTP_401_UNAUTHORIZED,
-        )
-
     if response.status_code == status.HTTP_401_UNAUTHORIZED:
         return apiError(
             errors=response.data,

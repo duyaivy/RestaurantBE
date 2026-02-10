@@ -12,8 +12,8 @@ from .auth import (
 from .accounts import (
     AccountAPIView,
     ChangePasswordAPIView,
-    EmployeeListAPIView,
-    EmployeeDetailAPIView
+    EmployeeListCreateAPIView,
+    EmployeeDetailAPIView   
 )
 
 __all__ = [
@@ -24,6 +24,6 @@ __all__ = [
     # User Management
     "AccountAPIView",
     "ChangePasswordAPIView",
-    "EmployeeListAPIView",
+    "EmployeeListCreateAPIView",
     "EmployeeDetailAPIView",
 ]
