@@ -32,6 +32,9 @@ INSTALLED_APPS = [
     "corsheaders",
     "drf_yasg",
     "restaurantBE.accounts",
+    "restaurantBE.upload",
+    "restaurantBE.tables",
+    "restaurantBE.guests"   
 ]
 
 MIDDLEWARE = [

@@ -37,6 +37,7 @@ class Account(AbstractUser):
     role = models.CharField(
         max_length=20,
         choices=Role.choices,
+        default=Role.EMPLOYEE,
     )
     avatar = models.CharField(max_length=255, blank=True, null=True)
     owner_id = models.IntegerField(blank=True, null=True)
