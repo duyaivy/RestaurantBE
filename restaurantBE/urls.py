@@ -28,4 +28,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     # api route
     path("api/", include("restaurantBE.accounts.urls"), name="accounts"),
+    path("api/", include("restaurantBE.upload.urls"), name="upload"),
 ]

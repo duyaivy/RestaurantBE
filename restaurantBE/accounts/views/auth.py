@@ -4,13 +4,11 @@ Handles: Register, Login, Logout, Token Refresh
 """
 
 import logging
-from datetime import datetime
 from requests import request
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny
-from rest_framework.views import APIView
 from restaurantBE.accounts.serializers import (
     AccountSerializer,
     LoginSerializer,
