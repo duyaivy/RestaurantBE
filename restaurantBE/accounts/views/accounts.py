@@ -3,6 +3,7 @@ User Management Views
 Handles: Get User Profile, Update Profile, Change Password
 """
 
+from restaurantBE.accounts.serializers.accounts import AccountUpdateSerializer
 from django.http.response import Http404
 from rest_framework.generics import ListCreateAPIView
 from restaurantBE.utils.custom_pagination import CustomPagination
@@ -154,7 +155,7 @@ class EmployeeDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     DELETE /api/accounts/<id>/
     """
     permission_classes = [IsAuthenticated, IsAdmin]
-    serializer_class = AccountSerializer
+    serializer_class = AccountUpdateSerializer
     queryset = Account.objects.filter(role=Role.EMPLOYEE)
 
     def retrieve(self, request, *args, **kwargs):
@@ -176,7 +177,10 @@ class EmployeeDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 
     def update(self, request, *args, **kwargs):
         """
-        Update Employee - Prevent email, password, id changes
+        Update Employee Information
+        - Email: Cannot be changed (read-only)
+        - Password: Optional, admin can reset employee password
+        - Name, Avatar: Can be updated
         """
         try:
             instance = self.get_object()
@@ -187,14 +191,7 @@ class EmployeeDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        data = request.data.copy()
-        
-        if "email" in data:
-            del data["email"]
-        
-        data["email"] = instance.email
-      
-        serializer = self.get_serializer(instance, data=data, partial=kwargs.get('partial', False))
+        serializer = self.get_serializer(instance, data=request.data, partial=kwargs.get('partial', False))
         if serializer.is_valid():
             serializer.save()
             return apiSuccess(
