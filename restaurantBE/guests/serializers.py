@@ -2,6 +2,7 @@
 Guest Serializers
 Handles: Guest data serialization and login (which creates new guest)
 """
+from restaurantBE.constants.roles import TableStatus
 from rest_framework_simplejwt.settings import api_settings
 from rest_framework import serializers
 from django.core.exceptions import ObjectDoesNotExist
@@ -47,7 +48,9 @@ class GuestCreateAccountSerializer(serializers.Serializer):
     def validate_tableNumber(self, value):
         """Validate table exists"""
         try:
-            Table.objects.get(number=value)
+          table =  Table.objects.get(number=value)
+          if table.status != TableStatus.AVAILABLE:
+            raise serializers.ValidationError(_('table_not_available'))
         except ObjectDoesNotExist:
             raise serializers.ValidationError(_('table_not_found'))
         return value
@@ -65,7 +68,10 @@ class GuestCreateAccountSerializer(serializers.Serializer):
             name=name,
             tableNumber_id=table_number
         )
-        
+        # update status
+        table = Table.objects.get(number=table_number)
+        table.status = TableStatus.RESERVED
+        table.save()
         return guest
     
     def validate(self, attrs):
@@ -114,7 +120,7 @@ class GuestLoginSerializer(GuestCreateAccountSerializer):
         # Verify table token
         if table.token != table_token:
             raise serializers.ValidationError({'tableToken': _('invalid_table_token')})
-        
+
         # Create new guest using parent method
         guest = self.create_guest(attrs)
         

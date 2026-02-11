@@ -224,7 +224,6 @@ class GuestRefreshTokenAPIView(generics.GenericAPIView):
                 status=status.HTTP_422_UNPROCESSABLE_ENTITY,
             )
         except Exception as e:
-            logger.error(f"Guest token refresh failed: {str(e)}")
             errors = e.detail if hasattr(e, "detail") else str(e)
             return apiError(
                 errors=errors,
@@ -250,7 +249,7 @@ class GuestCreateAccountAPIView(generics.GenericAPIView):
             serializer.is_valid(raise_exception=True)
             
             return apiSuccess(
-                data=serializer.validated_data,
+                data=serializer.validated_data['guest'],
                 msg=_("guest_create_account_success"),
                 status=status.HTTP_200_OK,
             )
