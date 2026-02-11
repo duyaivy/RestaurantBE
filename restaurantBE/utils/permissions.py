@@ -9,12 +9,12 @@ class IsAdmin(BasePermission):
 
     def has_permission(self, request, view):
         return bool(request.user and request.user.is_authenticated and request.user.role == Role.ADMIN)
-    
-class IsEmployee(BasePermission):
+        
+class IsAdminOrEmployee(BasePermission):
     """
-    Allows access only to employee users.
+    Allows access only to admin or employee users.
     """
-    message = "employee_required"
+    message = "admin_or_employee_required"
 
     def has_permission(self, request, view):
-        return bool(request.user and request.user.is_authenticated and request.user.role == Role.EMPLOYEE)
+        return bool(request.user and request.user.is_authenticated and request.user.role in [Role.ADMIN, Role.EMPLOYEE])

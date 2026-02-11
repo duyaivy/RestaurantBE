@@ -29,4 +29,5 @@ urlpatterns = [
     # api route
     path("api/", include("restaurantBE.accounts.urls"), name="accounts"),
     path("api/", include("restaurantBE.upload.urls"), name="upload"),
+    path("api/", include("restaurantBE.guests.urls"), name="guests"),
 ]
