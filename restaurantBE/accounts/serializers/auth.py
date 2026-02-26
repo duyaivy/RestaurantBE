@@ -68,6 +68,7 @@ class LoginSerializer(TokenObtainPairSerializer):
         # Add custom claims
         token["user_id"] = user.id
         token["role"] = user.role
+        token["user_type"] = "account"  # Distinguish from guest tokens
 
         return token
 
