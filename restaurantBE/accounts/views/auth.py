@@ -32,6 +32,7 @@ class RegisterAPIView(generics.GenericAPIView):
     User Registration
     POST /api/auth/register/
     """
+
     authentication_classes = []
     permission_classes = [AllowAny]
     serializer_class = RegisterSerializer
@@ -65,6 +66,7 @@ class LoginAPIView(TokenObtainPairView):
     User Login
     POST /api/auth/login/
     """
+
     authentication_classes = []
     permission_classes = [AllowAny]
     serializer_class = LoginSerializer
@@ -189,5 +191,5 @@ class RefreshTokenAPIView(TokenRefreshView):
             return apiError(
                 errors=errors,
                 msg="token_refresh_failed",
-                status=status.HTTP_400_BAD_REQUEST,
+                status=status.HTTP_401_UNAUTHORIZED,
             )
