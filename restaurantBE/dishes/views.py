@@ -65,7 +65,7 @@ class DishListCreateAPIView(ListCreateAPIView):
             return apiError(
                 None,
                 msg=_("get_all_dish_error"),
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
     def post(self, request, *args, **kwargs):
@@ -89,7 +89,7 @@ class DishListCreateAPIView(ListCreateAPIView):
             return apiError(
                 None,
                 msg=_("create_dish_error"),
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
 
@@ -113,7 +113,7 @@ class DishRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
             return apiError(
                 None,
                 msg=_("get_dish_error"),
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
     def destroy(self, request, *args, **kwargs):
@@ -129,7 +129,7 @@ class DishRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
             return apiError(
                 None,
                 msg=_("delete_dish_error"),
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
     def update(self, request, *args, **kwargs):
@@ -154,5 +154,5 @@ class DishRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
             return apiError(
                 None,
                 msg=_("update_dish_error"),
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                status=status.HTTP_400_BAD_REQUEST,
             )

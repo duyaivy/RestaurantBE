@@ -181,7 +181,7 @@ class EmployeeListCreateAPIView(ListCreateAPIView):
             return apiError(
                 None,
                 msg=_("get_employees_error"),
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
     def post(self, request, *args, **kwargs):
@@ -225,7 +225,7 @@ class EmployeeDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
             return apiError(
                 None,
                 _("get_employee_error"),
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
     def update(self, request, *args, **kwargs):
@@ -265,7 +265,7 @@ class EmployeeDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
             return apiError(
                 None,
                 _("update_employee_error"),
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
     def partial_update(self, request, *args, **kwargs):
@@ -298,5 +298,5 @@ class EmployeeDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
             return apiError(
                 None,
                 _("delete_employee_error"),
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                status=status.HTTP_400_BAD_REQUEST,
             )
