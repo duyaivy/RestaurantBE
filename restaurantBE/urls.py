@@ -31,4 +31,6 @@ urlpatterns = [
     path("api/", include("restaurantBE.upload.urls"), name="upload"),
     path("api/", include("restaurantBE.guests.urls"), name="guests"),
     path("api/", include("restaurantBE.tables.urls"), name="tables"),
+    path("api/", include("restaurantBE.dishes.urls"), name="dishes"),
+    path("api/", include("restaurantBE.categories.urls"), name="categories"),
 ]
