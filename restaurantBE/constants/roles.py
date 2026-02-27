@@ -12,3 +12,9 @@ class TableStatus(models.TextChoices):
     AVAILABLE = "AVAILABLE", _("available")
     RESERVED = "RESERVED", _("reserved")
     HIDDEN = "HIDDEN", _("hidden")
+
+
+class DishStatus(models.TextChoices):
+    AVAILABLE = "AVAILABLE", _("available")
+    UNAVAILABLE = "UNAVAILABLE", _("unavailable")
+    HIDDEN = "HIDDEN", _("hidden")
