@@ -3,3 +3,4 @@ class Constant:
     ALLOWED_IMAGE_FORMATS = ["image/jpeg", "image/png", "image/jpg"]
     MAX_CAPACITY = 10
     MIN_CAPACITY = 1
+    DEFAULT_PAGE_SIZE = 10

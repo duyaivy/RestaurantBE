@@ -1,11 +1,19 @@
-from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.pagination import PageNumberPagination
 
 
-class CustomPagination(LimitOffsetPagination):
-    default_limit = 10
-    max_limit = 100
-    min_limit = 1
-    min_offset = 0
-    max_offset = 50
-    limit_query_param = "limit"
-    offset_query_param = "page"
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.exceptions import ValidationError, NotFound
+from django.utils.translation import gettext_lazy as _
+
+
+class CustomPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = "limit"
+    max_page_size = 50
+    page_query_param = "page"
+
+    def paginate_queryset(self, queryset, request, view=None):
+        try:
+            return super().paginate_queryset(queryset, request, view=view)
+        except NotFound:
+            raise ValidationError({"page": _("invalid_page_number")})

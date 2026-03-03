@@ -34,7 +34,9 @@ INSTALLED_APPS = [
     "restaurantBE.accounts",
     "restaurantBE.upload",
     "restaurantBE.tables",
-    "restaurantBE.guests"   
+    "restaurantBE.guests",
+    "restaurantBE.dishes",
+    "restaurantBE.categories",
 ]
 
 MIDDLEWARE = [
