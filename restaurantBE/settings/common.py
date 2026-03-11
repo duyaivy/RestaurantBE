@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "restaurantBE.guests",
     "restaurantBE.dishes",
     "restaurantBE.categories",
+    "restaurantBE.orders",
 ]
 
 MIDDLEWARE = [
@@ -132,7 +133,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Rest framework option
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "restaurantBE.authentication.AccountJWTAuthentication",
+        "restaurantBE.authentication.GuestJWTAuthentication",
     ),
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 10,

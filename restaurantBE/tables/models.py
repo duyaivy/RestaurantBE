@@ -1,4 +1,4 @@
-from restaurantBE.constants.roles import TableStatus
+from restaurantBE.constants.choices import TableStatus
 from django.db import models
 
 class Table(models.Model):

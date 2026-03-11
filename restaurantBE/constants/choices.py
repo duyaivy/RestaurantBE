@@ -18,3 +18,20 @@ class DishStatus(models.TextChoices):
     AVAILABLE = "AVAILABLE", _("available")
     UNAVAILABLE = "UNAVAILABLE", _("unavailable")
     HIDDEN = "HIDDEN", _("hidden")
+
+class PaymentMethod(models.TextChoices):
+    CASH = "CASH", _("cash")
+    QR_CODE = "QR_CODE", _("qr_code")
+
+class OrderStatus(models.TextChoices):
+    PENDING = "PENDING", _("pending")
+    PREPARING = "PREPARING", _("preparing")
+    SERVED = "SERVED", _("served")
+    CANCELLED = "CANCELLED", _("cancelled")
+    COMPLETED = "COMPLETED", _("completed")
+
+class OrderItemStatus(models.TextChoices):
+    ORDERED = "ORDERED", _("ordered")
+    COOKING = "COOKING", _("cooking")
+    SERVED = "SERVED", _("served")
+    CANCELLED = "CANCELLED", _("cancelled")
