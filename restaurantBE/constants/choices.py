@@ -19,9 +19,11 @@ class DishStatus(models.TextChoices):
     UNAVAILABLE = "UNAVAILABLE", _("unavailable")
     HIDDEN = "HIDDEN", _("hidden")
 
+
 class PaymentMethod(models.TextChoices):
     CASH = "CASH", _("cash")
     QR_CODE = "QR_CODE", _("qr_code")
+
 
 class OrderStatus(models.TextChoices):
     PENDING = "PENDING", _("pending")
@@ -30,8 +32,27 @@ class OrderStatus(models.TextChoices):
     CANCELLED = "CANCELLED", _("cancelled")
     COMPLETED = "COMPLETED", _("completed")
 
+
 class OrderItemStatus(models.TextChoices):
     ORDERED = "ORDERED", _("ordered")
     COOKING = "COOKING", _("cooking")
     SERVED = "SERVED", _("served")
     CANCELLED = "CANCELLED", _("cancelled")
+
+
+# Valid order status transitions
+ORDER_STATUS_TRANSITIONS = {
+    OrderStatus.PENDING: [
+        OrderStatus.PREPARING,
+        OrderStatus.CANCELLED,
+        OrderStatus.PENDING,
+    ],
+    OrderStatus.PREPARING: [
+        OrderStatus.SERVED,
+        OrderStatus.CANCELLED,
+        OrderStatus.PREPARING,
+    ],
+    OrderStatus.SERVED: [OrderStatus.COMPLETED, OrderStatus.SERVED],
+    OrderStatus.COMPLETED: [OrderStatus.COMPLETED],
+    OrderStatus.CANCELLED: [OrderStatus.CANCELLED],
+}

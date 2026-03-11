@@ -1,7 +1,8 @@
-from logging import Logger
+import logging
 
 from rest_framework.filters import OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
+from restaurantBE.constants.choices import OrderStatus
 from restaurantBE.utils.custom_pagination import CustomPagination
 from restaurantBE.utils.permissions import IsAdminOrEmployee
 from restaurantBE.utils.responses import apiError
@@ -18,6 +19,8 @@ from restaurantBE.orders.serializers import (
     OrderCreateSerializer,
     OrderItemSerializer,
     OrderUpdateStatusSerializer,
+    OrderUpdateSerializer,
+    OrderItemsUpdateSerializer,
 )
 from rest_framework import status
 from restaurantBE.orders.models import Order, OrderItem
@@ -25,15 +28,17 @@ from restaurantBE.orders.serializers import OrderSerializer
 from rest_framework.generics import (
     ListAPIView,
     CreateAPIView,
-    RetrieveUpdateDestroyAPIView,
+    RetrieveDestroyAPIView,
     GenericAPIView,
 )
 from django.utils.translation import gettext_lazy as _
-from django.db import transaction
+from django.db import transaction, models
 from django.http.response import Http404
 from restaurantBE.utils.custom_filter import OrderFilter
 
-logger = Logger(__name__)
+logger = logging.getLogger(__name__)
+
+
 class OrderListAPIView(ListAPIView):
     permission_classes = [IsAuthenticated, IsAdminOrEmployee]
     pagination_class = CustomPagination
@@ -156,7 +161,7 @@ class OrderCreateAPIView(CreateAPIView):
             )
 
 
-class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+class OrderRetrieveDestroyAPIView(RetrieveDestroyAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated, IsAdminOrEmployee]
@@ -187,8 +192,15 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     def destroy(self, request, *args, **kwargs):
         try:
             instance = self.get_object()
-            log_data = OrderSerializer(instance).data
-            logger.info(f"Deleting order: {log_data}")
+            if instance.status == OrderStatus.CANCELLED:
+                return apiError(
+                    None,
+                    msg=_("order_already_cancelled"),
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            instance.status = OrderStatus.CANCELLED
+            instance.save()
             return apiSuccess(None, msg=_("delete_order_success"))
         except Http404:
             return apiError(
@@ -198,31 +210,6 @@ class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
             return apiError(
                 None,
                 msg=_("delete_order_error"),
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-    def update(self, request, *args, **kwargs):
-        try:
-            instance = self.get_object()
-            serializer = self.get_serializer(instance, data=request.data, partial=True)
-
-            if serializer.is_valid():
-                serializer.save()
-                return apiSuccess(serializer.data, msg=_("update_order_success"))
-
-            return apiError(
-                serializer.errors,
-                msg=_("update_order_error"),
-                status=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            )
-        except Http404:
-            return apiError(
-                None, msg=_("order_not_found"), status=status.HTTP_404_NOT_FOUND
-            )
-        except Exception as e:
-            return apiError(
-                None,
-                msg=_("update_order_error"),
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -236,7 +223,9 @@ class OrderUpdateStatusAPIView(GenericAPIView):
     def patch(self, request, *args, **kwargs):
         try:
             instance = self.get_object()
-            serializer = self.get_serializer(data=request.data)
+            serializer = self.get_serializer(
+                data=request.data, context={"instance": instance}
+            )
 
             if serializer.is_valid():
                 instance.status = serializer.validated_data["status"]
@@ -259,5 +248,228 @@ class OrderUpdateStatusAPIView(GenericAPIView):
             return apiError(
                 None,
                 msg=_("update_order_status_error"),
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+
+class OrderUpdateAPIView(GenericAPIView):
+    """API để update order - các trường: status, payment_method, table_number, order_handler_id"""
+
+    queryset = Order.objects.all()
+    serializer_class = OrderUpdateSerializer
+    permission_classes = [IsAuthenticated, IsAdminOrEmployee]
+    lookup_field = "pk"
+
+    def patch(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+
+            # Validate order chưa bị cancelled hoặc completed
+            if instance.status in [OrderStatus.CANCELLED, OrderStatus.COMPLETED]:
+                return apiError(
+                    None,
+                    msg=_("cannot_update_cancelled_or_completed_order"),
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            serializer = self.get_serializer(instance, data=request.data, partial=True)
+
+            if serializer.is_valid():
+                serializer.save()
+
+                # Trả về response đầy đủ với items
+                response_serializer = OrderSerializer(instance)
+                order_items = OrderItem.objects.filter(order_id=instance.id)
+
+                data = dict(response_serializer.data)
+                data["items"] = OrderItemSerializer(order_items, many=True).data
+
+                return apiSuccess(data, msg=_("update_order_success"))
+
+            return apiError(
+                serializer.errors,
+                msg=_("update_order_error"),
+                status=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            )
+        except Http404:
+            return apiError(
+                None, msg=_("order_not_found"), status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return apiError(
+                str(e),
+                msg=_("update_order_error"),
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+
+class OrderUpdateItemsAPIView(GenericAPIView):
+    """API để thêm/cập nhật/xóa dishes trong order
+
+    Request body:
+    {
+        "add_items": [
+            {"dish_id": 1, "quantity": 2, "note": "Không hành"},
+            {"dish_id": 3, "quantity": 1}
+        ],
+        "update_items": [
+            {"order_item_id": 5, "quantity": 3, "note": "Thêm hành"},
+            {"order_item_id": 7, "quantity": 1}
+        ],
+        "cancel_item_ids": [10, 12]
+    }
+    """
+
+    queryset = Order.objects.all()
+    serializer_class = OrderItemsUpdateSerializer
+    permission_classes = [IsAuthenticated, IsAdminOrEmployee]
+    lookup_field = "pk"
+
+    def patch(self, request, *args, **kwargs):
+        try:
+            with transaction.atomic():
+                order = self.get_object()
+
+                # Validate order chưa bị cancelled hoặc completed
+                if order.status in [OrderStatus.CANCELLED, OrderStatus.COMPLETED]:
+                    return apiError(
+                        None,
+                        msg=_("cannot_update_cancelled_or_completed_order"),
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
+                # Validate request data
+                serializer = self.get_serializer(
+                    data=request.data, context={"order_id": order.id}
+                )
+
+                if not serializer.is_valid():
+                    return apiError(
+                        serializer.errors,
+                        msg=_("invalid_request_data"),
+                        status=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    )
+
+                validated_data = serializer.validated_data
+                add_items = validated_data.get("add_items", [])
+                update_items = validated_data.get("update_items", [])
+                cancel_item_ids = validated_data.get("cancel_item_ids", [])
+
+                # Xử lý cancel items
+                if cancel_item_ids:
+                    cancelled_count = OrderItem.objects.filter(
+                        id__in=cancel_item_ids, order_id=order
+                    ).update(item_status=OrderItemStatus.CANCELLED)
+
+                    logger.info(
+                        f"Cancelled {cancelled_count} items for order {order.id}"
+                    )
+
+                # Xử lý update items
+                updated_items = []
+                if update_items:
+                    for item_data in update_items:
+                        order_item = OrderItem.objects.select_for_update().get(
+                            id=item_data["order_item_id"], order_id=order
+                        )
+
+                        # Update quantity và note
+                        order_item.quantity = item_data["quantity"]
+                        if "note" in item_data:
+                            order_item.note = item_data["note"]
+
+                        # Recalculate total_amount
+                        order_item.total_amount = (
+                            order_item.dish_snapshot_id.price * order_item.quantity
+                        )
+                        order_item.save()
+                        updated_items.append(order_item)
+
+                    logger.info(
+                        f"Updated {len(updated_items)} items for order {order.id}"
+                    )
+
+                # Xử lý add items
+                added_items = []
+                if add_items:
+                    dish_ids = [item["dish_id"] for item in add_items]
+                    dishes = Dish.objects.filter(id__in=dish_ids)
+
+                    # Tạo dict để lookup nhanh
+                    dishes_dict = {dish.id: dish for dish in dishes}
+
+                    for item_data in add_items:
+                        dish = dishes_dict.get(item_data["dish_id"])
+                        if not dish:
+                            continue
+
+                        # Tạo DishSnapshot
+                        dish_snapshot = DishSnapshot.objects.create(
+                            dish_id=dish,
+                            name=dish.name,
+                            price=dish.price,
+                            description=dish.description,
+                            image=dish.image,
+                        )
+
+                        # Tạo OrderItem
+                        quantity = item_data["quantity"]
+                        total_amount = dish_snapshot.price * quantity
+
+                        order_item = OrderItem.objects.create(
+                            order_id=order,
+                            dish_snapshot_id=dish_snapshot,
+                            quantity=quantity,
+                            note=item_data.get("note", ""),
+                            item_status=OrderItemStatus.ORDERED,
+                            total_amount=total_amount,
+                        )
+                        added_items.append(order_item)
+
+                    logger.info(f"Added {len(added_items)} items to order {order.id}")
+
+                # Recalculate total_amount của order
+                # Chỉ tính các items chưa bị cancel
+                total_amount = (
+                    OrderItem.objects.filter(order_id=order)
+                    .exclude(item_status=OrderItemStatus.CANCELLED)
+                    .aggregate(total=models.Sum("total_amount"))["total"]
+                    or 0
+                )
+
+                order.total_amount = total_amount
+                order.save()
+
+                # Prepare response
+                order_serializer = OrderSerializer(order)
+                order_items = OrderItem.objects.filter(order_id=order.id)
+
+                response_data = dict(order_serializer.data)
+                response_data["items"] = OrderItemSerializer(
+                    order_items, many=True
+                ).data
+                response_data["summary"] = {
+                    "added_count": len(added_items),
+                    "updated_count": len(updated_items),
+                    "cancelled_count": len(cancel_item_ids),
+                }
+
+                return apiSuccess(response_data, msg=_("update_order_items_success"))
+
+        except Http404:
+            return apiError(
+                None, msg=_("order_not_found"), status=status.HTTP_404_NOT_FOUND
+            )
+        except ValidationError as e:
+            return apiError(
+                str(e),
+                msg=_("validation_error"),
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except Exception as e:
+            logger.error(f"Error updating order items: {str(e)}")
+            return apiError(
+                str(e),
+                msg=_("update_order_items_error"),
                 status=status.HTTP_400_BAD_REQUEST,
             )
