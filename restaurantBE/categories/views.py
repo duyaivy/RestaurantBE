@@ -1,5 +1,5 @@
 from django.http.response import Http404
-from restaurantBE.constants.roles import DishStatus
+from restaurantBE.constants.choices import DishStatus
 from restaurantBE.utils.responses import apiError, apiSuccess
 from rest_framework import status
 from restaurantBE.utils.permissions import IsAdminOrEmployee
