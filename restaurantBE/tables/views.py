@@ -1,3 +1,4 @@
+from restaurantBE.authentication import AccountJWTAuthentication
 from django.http.response import Http404
 from restaurantBE.utils.random import RandomUtils
 from restaurantBE.utils.responses import apiError, apiSuccess
@@ -13,7 +14,11 @@ logger = logging.getLogger(__name__)
 
 class TableRetrieveListAPIView(RetrieveAPIView):
     queryset = Table.objects.all()
-    permission_classes = [IsAuthenticated, IsAdminOrEmployee]
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return []
+        return [IsAuthenticated(), IsAdminOrEmployee()]
+        
     lookup_field = 'number'
     lookup_url_kwarg = 'number'
     serializer_class = TableSerializer

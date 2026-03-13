@@ -2,7 +2,7 @@
 Guest Serializers
 Handles: Guest data serialization and login (which creates new guest)
 """
-from restaurantBE.constants.roles import TableStatus
+from restaurantBE.constants.choices import TableStatus
 from rest_framework_simplejwt.settings import api_settings
 from rest_framework import serializers
 from django.core.exceptions import ObjectDoesNotExist
@@ -12,7 +12,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 
 from restaurantBE.guests.models import Guest
 from restaurantBE.tables.models import Table
-from restaurantBE.constants.roles import Role
+from restaurantBE.constants.choices import Role
 
 
 class GuestSerializer(serializers.ModelSerializer):
