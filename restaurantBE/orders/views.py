@@ -1,4 +1,12 @@
+from restaurantBE.settings.common import VNPAY_ORDER_TYPE
+from restaurantBE.settings.common import VNPAY_RETURN_URL
+from restaurantBE.settings.common import VNPAY_PAYMENT_URL
+from restaurantBE.settings.common import VNPAY_HASH_SECRET
+from restaurantBE.settings.common import CLIENT_URL
+from restaurantBE.orders.vnpay import get_client_ip
+from restaurantBE.settings.common import VNPAY_TMN_CODE
 import logging
+from urllib.parse import urlencode
 
 from rest_framework.filters import OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
@@ -23,6 +31,7 @@ from restaurantBE.orders.serializers import (
     OrderUpdateStatusSerializer,
     OrderUpdateSerializer,
     OrderItemsUpdateSerializer,
+    OrderCreatePaymentSerializer,
 )
 from rest_framework import status
 from restaurantBE.orders.models import Order, OrderItem
@@ -36,7 +45,10 @@ from rest_framework.generics import (
 from django.utils.translation import gettext_lazy as _
 from django.db import transaction, models
 from django.http.response import Http404
+from django.http import HttpResponseRedirect
 from restaurantBE.utils.custom_filter import OrderFilter
+from restaurantBE.orders.vnpay import VNPAY
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -564,3 +576,134 @@ class OrderUpdateItemsAPIView(GenericAPIView):
                 msg=_("update_order_items_error"),
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+
+class OrderCreatePaymentView(GenericAPIView):
+    serializer_class = OrderCreatePaymentSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if not serializer.is_valid():
+            return apiError(
+                serializer.errors,
+                msg=_("invalid_request_data"),
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        paymentMethod = request.data.get("payment_method")
+        order_id = self.kwargs["pk"]
+        order = Order.objects.get(pk=order_id)
+
+        # save payment method
+        order.payment_method = paymentMethod
+        order.save()
+
+        # data for vnpay
+        order_type = VNPAY_ORDER_TYPE
+        order_id = order.id
+        amount = int(order.total_amount)
+        order_desc = _("order_desc") + str(order_id)
+        vnp_txn_ref = f"{order_id}-{datetime.now().strftime('%Y%m%d%H%M%S%f')}"
+        language = request.headers.get("language")
+        ipaddr = get_client_ip(request)
+        # Build URL Payment
+        vnp = VNPAY()
+        vnp.requestData["vnp_Version"] = "2.1.0"
+        vnp.requestData["vnp_Command"] = "pay"
+        vnp.requestData["vnp_TmnCode"] = VNPAY_TMN_CODE
+        vnp.requestData["vnp_Amount"] = amount * 100
+        vnp.requestData["vnp_CurrCode"] = "VND"
+        vnp.requestData["vnp_TxnRef"] = vnp_txn_ref
+        vnp.requestData["vnp_OrderInfo"] = order_desc
+        vnp.requestData["vnp_OrderType"] = order_type
+        # Check language, default: vn
+        if language and language != "":
+            vnp.requestData["vnp_Locale"] = language
+        else:
+            vnp.requestData["vnp_Locale"] = "vn"
+
+        vnp.requestData["vnp_CreateDate"] = datetime.now().strftime(
+            "%Y%m%d%H%M%S"
+        )  # 20150410063022
+        vnp.requestData["vnp_IpAddr"] = ipaddr
+        vnp.requestData["vnp_ReturnUrl"] = VNPAY_RETURN_URL
+        vnpay_payment_url = vnp.get_payment_url(VNPAY_PAYMENT_URL, VNPAY_HASH_SECRET)
+        # print(vnpay_payment_url)
+
+        if paymentMethod == PaymentMethod.QR_CODE:
+            return apiSuccess(
+                {"url": vnpay_payment_url}, msg=_("order_qr_code_create_url_success")
+            )
+        else:
+            return apiSuccess(None, msg=_("order_cash_create_success"))
+
+
+class VerifyOrderVNpayView(GenericAPIView):
+    def _redirect_client(self, payment_status, order_id=None, code=None):
+        query_data = {"payment_status": payment_status}
+        if order_id:
+            query_data["order_id"] = order_id
+        if code:
+            query_data["code"] = code
+
+        separator = "&" if "?" in CLIENT_URL else "?"
+        return HttpResponseRedirect(f"{CLIENT_URL}{separator}{urlencode(query_data)}")
+
+    def get(self, request):
+        input_data = request.GET
+
+        if not input_data:
+            # return JsonResponse({"RspCode": "99", "Message": "Invalid request"})
+            return self._redirect_client("invalid")
+
+        try:
+            vnp = VNPAY()
+            vnp.responseData = input_data.dict()
+
+            txn_ref = input_data.get("vnp_TxnRef")
+            response_code = input_data.get("vnp_ResponseCode")
+
+            order_id = txn_ref.split("-")[0] if txn_ref else None
+
+            if not order_id:
+                # return JsonResponse({"RspCode": "01", "Message": "Order not found"})
+                return self._redirect_client("failed", code="01")
+
+            if not vnp.validate_response(VNPAY_HASH_SECRET):
+                # return JsonResponse({"RspCode": "97", "Message": "Invalid Signature"})
+                return self._redirect_client("failed", order_id=order_id, code="97")
+
+            with transaction.atomic():
+                order = Order.objects.select_for_update().filter(pk=order_id).first()
+                if not order:
+                    # return JsonResponse({"RspCode": "01", "Message": "Order not found"})
+                    return self._redirect_client("failed", order_id=order_id, code="01")
+
+                if order.status == OrderStatus.COMPLETED:
+                    # return JsonResponse({"RspCode": "02", "Message": "Order Already Update"})
+                    return self._redirect_client(
+                        "success", order_id=order_id, code="02"
+                    )
+
+                if response_code == "00":
+                    order.status = OrderStatus.COMPLETED
+                    order.save(update_fields=["status", "updated_at"])
+                    logger.info(
+                        f"VNPay IPN success: order {order.id} marked as COMPLETED"
+                    )
+                    # return JsonResponse({"RspCode": "00", "Message": "Confirm Success"})
+                    return self._redirect_client(
+                        "success", order_id=order_id, code=response_code
+                    )
+                else:
+                    logger.info(
+                        f"VNPay IPN non-success code for order {order.id}: {response_code}"
+                    )
+                    # return JsonResponse({"RspCode": "00", "Message": "Confirm Success"})
+                    return self._redirect_client(
+                        "failed", order_id=order_id, code=response_code
+                    )
+
+        except Exception as exc:
+            logger.error(f"VNPay IPN error: {str(exc)}")
+            # return JsonResponse({"RspCode": "99", "Message": "Invalid request"})
+            return self._redirect_client("invalid")

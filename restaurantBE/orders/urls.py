@@ -2,6 +2,7 @@
 Guest URLs Configuration
 """
 
+from restaurantBE.orders.views import VerifyOrderVNpayView
 from django.urls import path
 from restaurantBE.orders.views import (
     OrderListAPIView,
@@ -11,6 +12,7 @@ from restaurantBE.orders.views import (
     OrderUpdateStatusAPIView,
     OrderUpdateAPIView,
     OrderUpdateItemsAPIView,
+    OrderCreatePaymentView
 )
 
 urlpatterns = [
@@ -41,4 +43,6 @@ urlpatterns = [
         OrderUpdateItemsAPIView.as_view(),
         name="order-update-items",
     ),
+    path("orders/verify/", VerifyOrderVNpayView.as_view(), name="order-verify"),
+    path("orders/<int:pk>/payment/", OrderCreatePaymentView.as_view(), name="order-vnpay-create-payment"),
 ]
