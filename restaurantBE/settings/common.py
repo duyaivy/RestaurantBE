@@ -120,11 +120,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 STATIC_URL = "/static/"
 
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, "restaurantBE/static"),
-    os.path.join(BASE_DIR, "static"),
-)
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
@@ -172,11 +167,10 @@ SWAGGER_SETTINGS = {
     }
 }
 
-#VNPAY
+# VNPAY
 VNPAY_TMN_CODE = os.getenv("VNPAY_TMN_CODE")
 VNPAY_HASH_SECRET = os.getenv("VNPAY_HASH_SECRET")
 VNPAY_PAYMENT_URL = os.getenv("VNPAY_PAYMENT_URL")
 VNPAY_RETURN_URL = os.getenv("VNPAY_RETURN_URL")
 VNPAY_ORDER_TYPE = os.getenv("VNPAY_ORDER_TYPE")
 CLIENT_URL = os.getenv("CLIENT_URL", "http://localhost:3000")
-    
