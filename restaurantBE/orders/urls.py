@@ -6,6 +6,7 @@ from django.urls import path
 from restaurantBE.orders.views import (
     OrderListAPIView,
     OrderCreateAPIView,
+    OrderStaffCreateAPIView,
     OrderRetrieveDestroyAPIView,
     OrderUpdateStatusAPIView,
     OrderUpdateAPIView,
@@ -19,8 +20,11 @@ urlpatterns = [
     path(
         "orders/guest-create/", OrderCreateAPIView.as_view(), name="orders-guest-create"
     ),
+    # Staff create order (for guest)
     path(
-        "orders/staff-create/", OrderCreateAPIView.as_view(), name="orders-staff-create"
+        "orders/staff-create/",
+        OrderStaffCreateAPIView.as_view(),
+        name="orders-staff-create",
     ),
     path(
         "orders/<int:pk>/", OrderRetrieveDestroyAPIView.as_view(), name="order-detail"

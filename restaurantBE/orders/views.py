@@ -11,12 +11,14 @@ from restaurantBE.constants import OrderItemStatus
 from rest_framework.exceptions import ValidationError
 from restaurantBE.constants import TableStatus
 from restaurantBE.tables.models import Table
+from restaurantBE.guests.models import Guest
 from restaurantBE.dishes.models import DishSnapshot, Dish
 from restaurantBE.constants import PaymentMethod
 from rest_framework.permissions import IsAuthenticated
 from restaurantBE.utils.permissions import IsGuest
 from restaurantBE.orders.serializers import (
     OrderCreateSerializer,
+    OrderStaffCreateSerializer,
     OrderItemSerializer,
     OrderUpdateStatusSerializer,
     OrderUpdateSerializer,
@@ -155,6 +157,95 @@ class OrderCreateAPIView(CreateAPIView):
                 )
         except ValidationError:
             raise
+        except Exception as e:
+            return apiError(
+                str(e), msg=_("create_order_error"), status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+class OrderStaffCreateAPIView(CreateAPIView):
+    """API for staff/employee to create order for guest"""
+
+    permission_classes = [IsAuthenticated, IsAdminOrEmployee]
+    serializer_class = OrderStaffCreateSerializer
+
+    def post(self, request):
+        try:
+            with transaction.atomic():
+                serializer = self.get_serializer(data=request.data)
+                serializer.is_valid(raise_exception=True)
+
+                guest_id = serializer.validated_data["guest_id"]
+                table_id = serializer.validated_data["table_number_id"]
+                items = serializer.validated_data["items"]
+
+                # Get guest instance
+                guest = Guest.objects.get(id=guest_id)
+
+                # Update table status
+                table = Table.objects.select_for_update().get(
+                    number=table_id
+                )  # lock table
+                table.status = TableStatus.RESERVED
+                table.save()
+
+                # Check order items
+                dish_ids = [item["dish_id"] for item in items]
+                dishes = Dish.objects.filter(id__in=dish_ids)
+                if dishes.count() != len(dish_ids):
+                    raise ValidationError(_("dish_not_found"))
+
+                # Create order with staff as order_handler
+                order = Order.objects.create(
+                    guest_id=guest,
+                    table_number_id=table_id,
+                    order_handler_id=request.user,  # Staff creating the order
+                    payment_method=PaymentMethod.CASH,
+                    total_amount=0,
+                )
+
+                total_amount = 0
+                # Create dish snapshot and order items
+                for item in items:
+                    dish = dishes.get(id=item["dish_id"])
+
+                    # Create dish snapshot
+                    dish_snapshot = DishSnapshot.objects.create(
+                        dish_id=dish,
+                        name=dish.name,
+                        price=dish.price,
+                        description=dish.description,
+                        image=dish.image,
+                    )
+
+                    # Create order item
+                    amount = dish_snapshot.price * item["quantity"]
+                    OrderItem.objects.create(
+                        order_id=order,
+                        dish_snapshot_id=dish_snapshot,
+                        quantity=item["quantity"],
+                        note=item.get("note", ""),
+                        item_status=OrderItemStatus.ORDERED,
+                        total_amount=amount,
+                    )
+                    total_amount += amount
+
+                # Update total amount
+                order.total_amount = total_amount
+                order.save()
+
+                response_serializer = OrderSerializer(order)
+                return apiSuccess(
+                    response_serializer.data,
+                    _("order_created"),
+                    status.HTTP_201_CREATED,
+                )
+        except ValidationError:
+            raise
+        except Guest.DoesNotExist:
+            return apiError(
+                None, msg=_("guest_not_found"), status=status.HTTP_404_NOT_FOUND
+            )
         except Exception as e:
             return apiError(
                 str(e), msg=_("create_order_error"), status=status.HTTP_400_BAD_REQUEST
