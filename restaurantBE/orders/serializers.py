@@ -6,6 +6,7 @@ from restaurantBE.tables.models import Table
 from restaurantBE.constants.common import Constant
 from restaurantBE.constants import DishStatus
 from restaurantBE.dishes.models import Dish
+from restaurantBE.guests.models import Guest
 from rest_framework import serializers
 from restaurantBE.orders.models import Order, OrderItem
 from django.utils.translation import gettext_lazy as _
@@ -65,10 +66,35 @@ class OrderItemCreateSerializer(serializers.Serializer):
 
 
 class OrderCreateSerializer(serializers.Serializer):
-    """Basic Order serializer"""
+    """Order serializer for Guest creating order"""
 
     table_number_id = serializers.IntegerField(required=True)
     items = OrderItemCreateSerializer(many=True, required=True)
+
+    def validate_table_number_id(self, value):
+        if not Table.objects.filter(number=value).exists():
+            raise serializers.ValidationError(_("table_not_found"))
+        if Table.objects.filter(number=value).first().status != TableStatus.AVAILABLE:
+            raise ValidationError(_("table_not_available"))
+        return value
+
+    def validate_items(self, value):
+        if not value:
+            raise ValidationError(_("order_items_required"))
+        return value
+
+
+class OrderStaffCreateSerializer(serializers.Serializer):
+    """Order serializer for Staff/Employee creating order"""
+
+    guest_id = serializers.IntegerField(required=True)
+    table_number_id = serializers.IntegerField(required=True)
+    items = OrderItemCreateSerializer(many=True, required=True)
+
+    def validate_guest_id(self, value):
+        if not Guest.objects.filter(id=value).exists():
+            raise ValidationError(_("guest_not_found"))
+        return value
 
     def validate_table_number_id(self, value):
         if not Table.objects.filter(number=value).exists():
