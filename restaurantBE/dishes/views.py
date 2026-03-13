@@ -1,7 +1,7 @@
 from re import search
 
 from django.http.response import Http404
-from restaurantBE.constants.roles import DishStatus
+from restaurantBE.constants.choices import DishStatus
 from restaurantBE.utils.custom_filter import DishFilter
 from restaurantBE.utils.custom_pagination import CustomPagination
 from restaurantBE.utils.responses import apiError, apiSuccess
@@ -22,8 +22,13 @@ logger = logging.getLogger(__name__)
 
 class DishListCreateAPIView(ListCreateAPIView):
     queryset = Dish.objects.all()
-    permission_classes = [IsAuthenticated, IsAdminOrEmployee]
     serializer_class = DishSerializer
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [] 
+        return [IsAuthenticated(), IsAdminOrEmployee()]
+
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = DishFilter

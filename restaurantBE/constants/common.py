@@ -4,3 +4,5 @@ class Constant:
     MAX_CAPACITY = 10
     MIN_CAPACITY = 1
     DEFAULT_PAGE_SIZE = 10
+    MAX_QUANTITY = 20
+    MIN_QUANTITY = 1

@@ -1,5 +1,6 @@
 from rest_framework.permissions import BasePermission
 from restaurantBE.constants import Role
+from restaurantBE.guests.models import Guest
 
 class IsAdmin(BasePermission):
     """
@@ -8,7 +9,7 @@ class IsAdmin(BasePermission):
     message = "admin_required"
 
     def has_permission(self, request, view):
-        return bool(request.user and request.user.is_authenticated and request.user.role == Role.ADMIN)
+        return bool(request.user and request.user.is_authenticated and hasattr(request.user, 'role') and request.user.role == Role.ADMIN)
         
 class IsAdminOrEmployee(BasePermission):
     """
@@ -17,4 +18,12 @@ class IsAdminOrEmployee(BasePermission):
     message = "admin_or_employee_required"
 
     def has_permission(self, request, view):
-        return bool(request.user and request.user.is_authenticated and request.user.role in [Role.ADMIN, Role.EMPLOYEE])
+        return bool(request.user and request.user.is_authenticated and hasattr(request.user, 'role') and request.user.role in [Role.ADMIN, Role.EMPLOYEE])
+class IsGuest(BasePermission):
+    """
+    Allows access only to guest users.
+    """
+    message = "guest_required"
+
+    def has_permission(self, request, view):
+        return bool(request.user and request.user.is_authenticated and isinstance(request.user, Guest))
