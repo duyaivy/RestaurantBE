@@ -171,3 +171,12 @@ SWAGGER_SETTINGS = {
         "Bearer": {"type": "apiKey", "name": "Authorization", "in": "header"}
     }
 }
+
+#VNPAY
+VNPAY_TMN_CODE = os.getenv("VNPAY_TMN_CODE")
+VNPAY_HASH_SECRET = os.getenv("VNPAY_HASH_SECRET")
+VNPAY_PAYMENT_URL = os.getenv("VNPAY_PAYMENT_URL")
+VNPAY_RETURN_URL = os.getenv("VNPAY_RETURN_URL")
+VNPAY_ORDER_TYPE = os.getenv("VNPAY_ORDER_TYPE")
+CLIENT_URL = os.getenv("CLIENT_URL", "http://localhost:3000")
+    
