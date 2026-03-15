@@ -21,20 +21,20 @@ logger = logging.getLogger(__name__)
 
 
 class DishListCreateAPIView(ListCreateAPIView):
-    queryset = Dish.objects.all()
+    queryset = Dish.objects.select_related("category_id").order_by("id")
     serializer_class = DishSerializer
 
     def get_permissions(self):
-        if self.request.method == 'GET':
-            return [] 
+        if self.request.method == "GET":
+            return []
         return [IsAuthenticated(), IsAdminOrEmployee()]
 
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = DishFilter
 
-    ordering_fields = ["price", "created_at", "name"]
-    ordering = ["-created_at"]  # default
+    ordering_fields = ["id", "price", "created_at", "name"]
+    ordering = ["id"]  # default
     search_fields = ["name__vi", "name__en"]
 
     def list(self, request, *args, **kwargs):
@@ -68,8 +68,9 @@ class DishListCreateAPIView(ListCreateAPIView):
             return apiSuccess(serializer.data, msg=_("get_all_dish_success"))
 
         except Exception as e:
+            logger.exception("Failed to list dishes")
             return apiError(
-                None,
+                {"detail": str(e)},
                 msg=_("get_all_dish_error"),
                 status=status.HTTP_400_BAD_REQUEST,
             )
@@ -92,15 +93,16 @@ class DishListCreateAPIView(ListCreateAPIView):
                 status=status.HTTP_422_UNPROCESSABLE_ENTITY,
             )
         except Exception as e:
+            logger.exception("Failed to create dish")
             return apiError(
-                None,
+                {"detail": str(e)},
                 msg=_("create_dish_error"),
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
 
 class DishRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = Dish.objects.all()
+    queryset = Dish.objects.select_related("category_id").all()
     serializer_class = DishSerializer
     permission_classes = [IsAuthenticated, IsAdminOrEmployee]
     lookup_field = "pk"
@@ -115,9 +117,9 @@ class DishRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
                 None, msg=_("dish_not_found"), status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
-
+            logger.exception("Failed to retrieve dish")
             return apiError(
-                None,
+                {"detail": str(e)},
                 msg=_("get_dish_error"),
                 status=status.HTTP_400_BAD_REQUEST,
             )
@@ -132,8 +134,9 @@ class DishRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
                 None, msg=_("dish_not_found"), status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
+            logger.exception("Failed to delete dish")
             return apiError(
-                None,
+                {"detail": str(e)},
                 msg=_("delete_dish_error"),
                 status=status.HTTP_400_BAD_REQUEST,
             )
@@ -157,8 +160,9 @@ class DishRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
                 None, msg=_("dish_not_found"), status=status.HTTP_404_NOT_FOUND
             )
         except Exception as e:
+            logger.exception("Failed to update dish")
             return apiError(
-                None,
+                {"detail": str(e)},
                 msg=_("update_dish_error"),
                 status=status.HTTP_400_BAD_REQUEST,
             )
