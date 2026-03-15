@@ -4,7 +4,8 @@ Handles: Guest Login (creates new guest), Logout, Token Refresh
 """
 
 from rest_framework.permissions import IsAuthenticated
-from restaurantBE.utils.permissions import IsAdminOrEmployee
+from restaurantBE.constants.choices import Role
+from restaurantBE.utils.permissions import IsAdminOrEmployee, IsGuest
 from rest_framework.decorators import authentication_classes
 import logging
 from rest_framework import generics, status
@@ -166,7 +167,6 @@ class GuestLogoutAPIView(generics.GenericAPIView):
             token = RefreshToken(refresh_token)
 
             # Verify this is a guest token
-            from restaurantBE.constants.roles import Role
 
             if token.get("role") != Role.GUEST:
                 return apiError(
@@ -264,5 +264,43 @@ class GuestCreateAccountAPIView(generics.GenericAPIView):
             return apiError(
                 errors=errors,
                 msg=_("guest_create_account_failed"),
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+
+class GuestMessageAPIView(generics.GenericAPIView):
+    """
+    Guest Send Message to Manager
+    POST /api/guests/message/
+
+    Body: { "message": "..." }
+
+    Socket Event: "guest-message" (broadcast to manager)
+    """
+
+    permission_classes = [IsAuthenticated, IsGuest]
+
+    def post(self, request, *args, **kwargs):
+        try:
+            message = request.data.get("message", "").strip()
+
+            if not message:
+                return apiError(
+                    {"message": [_("message_cannot_be_empty")]},
+                    _("message_cannot_be_empty"),
+                    status=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                )
+            # Broadcast to manager via WebSocket
+
+            return apiSuccess(
+                {"message": message},
+                _("send_message_success"),
+                status=status.HTTP_200_OK,
+            )
+        except Exception as e:
+            logger.error(f"Failed to send guest message: {str(e)}")
+            return apiError(
+                str(e),
+                _("send_message_failed"),
                 status=status.HTTP_400_BAD_REQUEST,
             )
