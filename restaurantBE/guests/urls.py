@@ -6,6 +6,7 @@ from django.urls import path
 from restaurantBE.guests.views import (
     GuestLoginAPIView,
     GuestLogoutAPIView,
+    GuestMessageAPIView,
     GuestRefreshTokenAPIView,
     GuestCreateAccountAPIView,
 )
@@ -24,6 +25,7 @@ urlpatterns = [
         GuestCreateAccountAPIView.as_view(),
         name="guest-create-account",
     ),
+    path("guests/message/", GuestMessageAPIView.as_view(), name="guest-message"),
 ]
 
 # ### 4. Đặt món (Guest)

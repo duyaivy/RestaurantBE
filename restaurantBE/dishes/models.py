@@ -11,7 +11,9 @@ class Dish(models.Model):
     status = models.CharField(
         max_length=20, choices=DishStatus.choices, default=DishStatus.AVAILABLE
     )
-    category_id = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
+    category_id = models.ForeignKey(
+        Category, on_delete=models.SET_NULL, null=True, db_column="category_id"
+    )
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
