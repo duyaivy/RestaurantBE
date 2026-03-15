@@ -1,9 +1,18 @@
 from rest_framework import serializers
+from restaurantBE.categories.models import Category, CategoryBriefSerializer
 from restaurantBE.dishes.models import Dish
 from django.utils.translation import gettext_lazy as _
 
 
 class DishSerializer(serializers.ModelSerializer):
+    category = CategoryBriefSerializer(source="category_id", read_only=True)
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.all(),
+        write_only=True,
+        allow_null=True,
+        required=False,
+    )
+
     class Meta:
         model = Dish
         fields = "__all__"

@@ -17,6 +17,7 @@ class CategorySerializer(serializers.ModelSerializer):
             "name",
             "description",
             "is_active",
+            "image",
             "created_at",
             "updated_at",
         ]

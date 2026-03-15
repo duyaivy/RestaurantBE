@@ -6,7 +6,7 @@ Handles: Register, Login, Logout, Token Refresh
 import logging
 from requests import request
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, AuthenticationFailed
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny
 from restaurantBE.accounts.serializers import (
@@ -72,7 +72,20 @@ class LoginAPIView(TokenObtainPairView):
     serializer_class = LoginSerializer
 
     def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
+        try:
+            response = super().post(request, *args, **kwargs)
+        except (AuthenticationFailed, ValidationError) as e:
+            return apiError(
+                errors=e.detail,
+                msg=_("email_or_password_incorrect"),
+                status=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            )
+        except Exception as e:
+            return apiError(
+                errors=str(e),
+                msg=_("login_failed"),
+                status=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            )
 
         # Lưu CẢ access và refresh token vào OutstandingToken để blacklist mechanism hoạt động
         if response.status_code == 200:
