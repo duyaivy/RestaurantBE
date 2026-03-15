@@ -10,12 +10,13 @@ class Category(models.Model):
     name = models.JSONField(max_length=255, null=False, blank=False)
     description = models.JSONField(null=True, blank=True)
     is_active = models.BooleanField(default=True, null=False, blank=False)
+    image = models.CharField(max_length=255, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = "categories"
-        ordering = ["name"]
+        ordering = ["id"]
         verbose_name = "Category"
         verbose_name_plural = "Categories"
 
