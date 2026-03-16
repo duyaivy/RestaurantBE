@@ -106,8 +106,13 @@ class DishListCreateAPIView(ListCreateAPIView):
 class DishRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Dish.objects.select_related("category_id").all()
     serializer_class = DishSerializer
-    permission_classes = [IsAuthenticated, IsAdminOrEmployee]
     lookup_field = "pk"
+    authentication_classes = [JWTAuthentication]
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return []
+        return [IsAuthenticated(), IsAdminOrEmployee()]
 
     def retrieve(self, request, *args, **kwargs):
         try:
