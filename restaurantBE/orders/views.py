@@ -333,6 +333,10 @@ class OrderUpdateStatusAPIView(GenericAPIView):
             if serializer.is_valid():
                 instance.status = serializer.validated_data["status"]
                 instance.save()
+                if instance.status == OrderStatus.COMPLETED:
+                    table = Table.objects.get(number=instance.table_number_id)
+                    table.status = TableStatus.AVAILABLE
+                    table.save()
                 response_serializer = OrderSerializer(instance)
                 return apiSuccess(
                     response_serializer.data, msg=_("update_order_status_success")

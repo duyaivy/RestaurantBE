@@ -25,7 +25,7 @@ class CategoryRetrieveListAPIView(ListCreateAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = []
 
     def get_authenticators(self):
         if self.request.method == "GET":
