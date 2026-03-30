@@ -13,7 +13,7 @@ from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIV
 from restaurantBE.dishes.models import Dish
 from restaurantBE.dishes.serializers import DishSerializer
 import logging
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework_simplejwt.authentication import JWTAuthentication

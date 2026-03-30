@@ -15,22 +15,22 @@ def CustomExceptionHandler(exc, context):
     if response.status_code == status.HTTP_401_UNAUTHORIZED:
         return apiError(
             errors=response.data,
-            msg="unauthorized",
+            msg=_("unauthorized"),
             status=status.HTTP_401_UNAUTHORIZED,
         )
 
     if response.status_code == status.HTTP_400_BAD_REQUEST:
         return apiError(
             errors=response.data,
-            msg="bad_request",
+            msg=_("bad_request"),
             status=status.HTTP_400_BAD_REQUEST,
         )
 
     if response.status_code == status.HTTP_403_FORBIDDEN:
-        msg = response.data.get("detail", "permission_denied")
+        msg = response.data.get("detail", _("permission_denied"))
         if isinstance(msg, list) and len(msg) > 0:
             msg = msg[0]
-            
+
         return apiError(
             errors=None,
             msg=str(msg),
