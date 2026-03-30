@@ -32,6 +32,319 @@ msgid "info"
 msgstr "Thông tin"
 
 # ====================
+# Models & Fields
+# ====================
+# (Removed as requested - only keeping essential ones if needed)
+
+# ====================
+# Choices
+# ====================
+# (Removed as requested)
+
+# ====================
+# Exceptions
+# ====================
+msgid "permission_denied"
+msgstr "Bạn không có quyền thực hiện hành động này."
+
+msgid "unauthorized"
+msgstr "Yêu cầu xác thực tài khoản."
+
+msgid "bad_request"
+msgstr "Yêu cầu không hợp lệ."
+
+msgid "employee_update_password_help"
+msgstr "Tùy chọn. Nếu cung cấp, mật khẩu nhân viên sẽ được cập nhật (phải có ít nhất 6 ký tự)"
+
+# ====================
+# AUTH & ACCOUNTS
+# ====================
+msgid "email_or_password_incorrect"
+msgstr "Email hoặc mật khẩu không chính xác"
+
+msgid "invalid_credentials"
+msgstr "Thông tin đăng nhập không hợp lệ"
+
+msgid "login_failed"
+msgstr "Đăng nhập thất bại"
+
+msgid "token_required"
+msgstr "Yêu cầu token"
+
+msgid "logout_failed"
+msgstr "Đăng xuất thất bại"
+
+msgid "token_refresh_success"
+msgstr "Làm mới token thành công"
+
+msgid "token_refresh_failed"
+msgstr "Làm mới token thất bại"
+
+msgid "get_user_success"
+msgstr "Lấy thông tin người dùng thành công"
+
+msgid "update_restricted_fields"
+msgstr "Không thể cập nhật các trường hạn chế (ID, email, password)"
+
+msgid "update_user_success"
+msgstr "Cập nhật thông tin người dùng thành công"
+
+msgid "update_user_failed"
+msgstr "Cập nhật thông tin người dùng thất bại"
+
+msgid "password_incorrect"
+msgstr "Mật khẩu cũ không chính xác"
+
+msgid "confirm_password_not_match"
+msgstr "Mật khẩu xác nhận không khớp"
+
+msgid "change_password_success"
+msgstr "Đổi mật khẩu thành công"
+
+msgid "change_password_failed"
+msgstr "Đổi mật khẩu thất bại"
+
+msgid "invalid_page_number"
+msgstr "Số trang không hợp lệ"
+
+msgid "get_employees_success"
+msgstr "Lấy danh sách nhân viên thành công"
+
+msgid "get_employees_error"
+msgstr "Lấy danh sách nhân viên thất bại"
+
+msgid "create_employee_success"
+msgstr "Tạo nhân viên thành công"
+
+msgid "get_employee_success"
+msgstr "Lấy thông tin nhân viên thành công"
+
+msgid "employee_not_found"
+msgstr "Không tìm thấy nhân viên"
+
+msgid "get_employee_error"
+msgstr "Lấy thông tin nhân viên thất bại"
+
+msgid "update_employee_success"
+msgstr "Cập nhật nhân viên thành công"
+
+msgid "update_employee_error"
+msgstr "Cập nhật nhân viên thất bại"
+
+msgid "delete_employee_success"
+msgstr "Xóa nhân viên thành công"
+
+msgid "delete_employee_error"
+msgstr "Xóa nhân viên thất bại"
+
+# ====================
+# GUESTS
+# ====================
+msgid "guest_login_success"
+msgstr "Khách đăng nhập thành công"
+
+msgid "guest_login_failed"
+msgstr "Khách đăng nhập thất bại"
+
+msgid "invalid_guest_token"
+msgstr "Token khách không hợp lệ"
+
+msgid "guest_logout_success"
+msgstr "Khách đăng xuất thành công"
+
+msgid "guest_logout_failed"
+msgstr "Khách đăng xuất thất bại"
+
+msgid "guest_token_refresh_success"
+msgstr "Làm mới token khách thành công"
+
+msgid "guest_create_account_success"
+msgstr "Tạo tài khoản khách thành công"
+
+msgid "guest_create_account_failed"
+msgstr "Tạo tài khoản khách thất bại"
+
+msgid "message_cannot_be_empty"
+msgstr "Tin nhắn không được để trống"
+
+msgid "send_message_success"
+msgstr "Gửi tin nhắn thành công"
+
+msgid "guest_not_found"
+msgstr "Không tìm thấy khách"
+
+# ====================
+# TABLES
+# ====================
+msgid "get_all_table_success"
+msgstr "Lấy danh sách bàn thành công"
+
+msgid "create_table_success"
+msgstr "Tạo bàn thành công"
+
+msgid "create_table_error"
+msgstr "Tạo bàn thất bại"
+
+msgid "table_not_found"
+msgstr "Không tìm thấy bàn"
+
+msgid "get_table_success"
+msgstr "Lấy thông tin bàn thành công"
+
+msgid "delete_table_success"
+msgstr "Xóa bàn thành công"
+
+msgid "update_table_success"
+msgstr "Cập nhật bàn thành công"
+
+msgid "update_table_error"
+msgstr "Cập nhật bàn thất bại"
+
+# ====================
+# CATEGORIES
+# ====================
+msgid "get_all_categories_success"
+msgstr "Lấy danh sách danh mục thành công"
+
+msgid "create_category_success"
+msgstr "Tạo danh mục thành công"
+
+msgid "create_category_error"
+msgstr "Tạo danh mục thất bại"
+
+msgid "category_not_found"
+msgstr "Không tìm thấy danh mục"
+
+msgid "get_category_success"
+msgstr "Lấy thông tin danh mục thành công"
+
+msgid "delete_category_success"
+msgstr "Xóa danh mục thành công"
+
+msgid "update_category_success"
+msgstr "Cập nhật danh mục thành công"
+
+msgid "update_category_error"
+msgstr "Cập nhật danh mục thất bại"
+
+# ====================
+# DISHES
+# ====================
+msgid "get_all_dish_success"
+msgstr "Lấy danh sách món ăn thành công"
+
+msgid "get_all_dish_error"
+msgstr "Lấy danh sách món ăn thất bại"
+
+msgid "create_dish_success"
+msgstr "Tạo món ăn thành công"
+
+msgid "create_dish_error"
+msgstr "Tạo món ăn thất bại"
+
+msgid "get_dish_success"
+msgstr "Lấy thông tin món ăn thành công"
+
+msgid "dish_not_found"
+msgstr "Không tìm thấy món ăn"
+
+msgid "get_dish_error"
+msgstr "Lấy thông tin món ăn thất bại"
+
+msgid "delete_dish_success"
+msgstr "Xóa món ăn thành công"
+
+msgid "delete_dish_error"
+msgstr "Xóa món ăn thất bại"
+
+msgid "update_dish_success"
+msgstr "Cập nhật món ăn thành công"
+
+msgid "update_dish_error"
+msgstr "Cập nhật món ăn thất bại"
+
+# ====================
+# ORDERS
+# ====================
+msgid "get_all_order_success"
+msgstr "Lấy danh sách đơn hàng thành công"
+
+msgid "get_all_order_error"
+msgstr "Lấy danh sách đơn hàng thất bại"
+
+msgid "order_created"
+msgstr "Đơn hàng đã được tạo thành công"
+
+msgid "create_order_error"
+msgstr "Tạo đơn hàng thất bại"
+
+msgid "get_order_success"
+msgstr "Lấy thông tin đơn hàng thành công"
+
+msgid "order_not_found"
+msgstr "Không tìm thấy đơn hàng"
+
+msgid "get_order_error"
+msgstr "Lấy thông tin đơn hàng thất bại"
+
+msgid "order_already_cancelled"
+msgstr "Đơn hàng đã bị hủy trước đó"
+
+msgid "delete_order_success"
+msgstr "Xóa đơn hàng thành công"
+
+msgid "delete_order_error"
+msgstr "Xóa đơn hàng thất bại"
+
+msgid "update_order_status_success"
+msgstr "Cập nhật trạng thái đơn hàng thành công"
+
+msgid "update_order_status_error"
+msgstr "Cập nhật trạng thái đơn hàng thất bại"
+
+msgid "cannot_update_cancelled_or_completed_order"
+msgstr "Không thể cập nhật đơn hàng đã hủy hoặc đã hoàn thành"
+
+msgid "update_order_success"
+msgstr "Cập nhật đơn hàng thành công"
+
+msgid "update_order_error"
+msgstr "Cập nhật đơn hàng thất bại"
+
+msgid "update_order_items_success"
+msgstr "Cập nhật món trong đơn hàng thành công"
+
+msgid "update_order_items_error"
+msgstr "Cập nhật món trong đơn hàng thất bại"
+
+msgid "order_desc"
+msgstr "Thanh toán đơn hàng #"
+
+msgid "order_qr_code_create_url_success"
+msgstr "Tạo link thanh toán QR Code thành công"
+
+msgid "order_cash_create_success"
+msgstr "Chọn phương thức thanh toán tiền mặt thành công"
+
+msgid "invalid_request_data"
+msgstr "Dữ liệu yêu cầu không hợp lệ"
+
+# ====================
+# UPLOAD & COMMON
+# ====================
+msgid "no_file_provided"
+msgstr "Chưa cung cấp file"
+
+msgid "file_too_large"
+msgstr "Kích thước file quá lớn"
+
+msgid "file_type_not_allowed"
+msgstr "Loại file không được phép"
+
+msgid "file_uploaded_successfully"
+msgstr "Tải file lên thành công"
+
+# ====================
 # EMAIL VALIDATION
 # ====================
 msgid "email_required"
@@ -62,14 +375,6 @@ msgstr "Token không hợp lệ"
 
 msgid "refresh_token_required"
 msgstr "Refresh token là bắt buộc"
-
-msgid "token_refresh_failed"
-msgstr "Refresh token thất bại, lỗi không xác định"
-
-msgid "token_refresh_success"
-msgstr "Refresh token thành công"
-
-
 
 # ====================
 # PASSWORD VALIDATION
@@ -107,9 +412,6 @@ msgstr "Đăng xuất thành công"
 msgid "register_success"
 msgstr "Đăng ký thành công"
 
-msgid "invalid_credentials"
-msgstr "Thông tin đăng nhập không hợp lệ"
-
 msgid "user_not_found"
 msgstr "Không tìm thấy người dùng"
 
@@ -146,12 +448,6 @@ msgstr "Giá trị quá ngắn"
 # ====================
 # HTTP STATUS
 # ====================
-msgid "bad_request"
-msgstr "Yêu cầu không hợp lệ"
-
-msgid "unauthorized"
-msgstr "Chưa xác thực"
-
 msgid "forbidden"
 msgstr "Bị cấm truy cập"
 

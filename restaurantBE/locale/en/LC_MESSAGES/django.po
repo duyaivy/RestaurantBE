@@ -334,3 +334,308 @@ msgstr "Completed"
 
 msgid "cancelled"
 msgstr "Cancelled"
+
+# ====================
+# Models & Fields ADDED
+# ====================
+# (Removed as requested)
+
+# ====================
+# Choices ADDED
+# ====================
+# (Removed as requested)
+
+# ====================
+# Exceptions
+# ====================
+msgid "permission_denied"
+msgstr "You do not have permission to perform this action."
+
+# ====================
+# AUTH & ACCOUNTS
+# ====================
+msgid "email_or_password_incorrect"
+msgstr "Email or password incorrect"
+
+msgid "login_failed"
+msgstr "Login failed"
+
+msgid "token_required"
+msgstr "Token is required"
+
+msgid "logout_failed"
+msgstr "Logout failed"
+
+msgid "token_refresh_success"
+msgstr "Token refresh successful"
+
+msgid "token_refresh_failed"
+msgstr "Token refresh failed"
+
+msgid "get_user_success"
+msgstr "Get user profile successful"
+
+msgid "update_restricted_fields"
+msgstr "Cannot update restricted fields (ID, email, password)"
+
+msgid "update_user_success"
+msgstr "Update user profile successful"
+
+msgid "update_user_failed"
+msgstr "Update user profile failed"
+
+msgid "password_incorrect"
+msgstr "Old password incorrect"
+
+msgid "confirm_password_not_match"
+msgstr "Confirm password does not match"
+
+msgid "change_password_success"
+msgstr "Change password successful"
+
+msgid "change_password_failed"
+msgstr "Change password failed"
+
+msgid "invalid_page_number"
+msgstr "Invalid page number"
+
+msgid "get_employees_success"
+msgstr "Get employees list successful"
+
+msgid "get_employees_error"
+msgstr "Get employees list failed"
+
+msgid "create_employee_success"
+msgstr "Create employee successful"
+
+msgid "get_employee_success"
+msgstr "Get employee details successful"
+
+msgid "employee_not_found"
+msgstr "Employee not found"
+
+msgid "get_employee_error"
+msgstr "Get employee details failed"
+
+msgid "update_employee_success"
+msgstr "Update employee successful"
+
+msgid "update_employee_error"
+msgstr "Update employee failed"
+
+msgid "delete_employee_success"
+msgstr "Delete employee successful"
+
+msgid "delete_employee_error"
+msgstr "Delete employee failed"
+
+# ====================
+# GUESTS
+# ====================
+msgid "guest_login_success"
+msgstr "Guest login successful"
+
+msgid "guest_login_failed"
+msgstr "Guest login failed"
+
+msgid "invalid_guest_token"
+msgstr "Invalid guest token"
+
+msgid "guest_logout_success"
+msgstr "Guest logout successful"
+
+msgid "guest_logout_failed"
+msgstr "Guest logout failed"
+
+msgid "guest_token_refresh_success"
+msgstr "Guest token refresh successful"
+
+msgid "guest_create_account_success"
+msgstr "Guest account creation successful"
+
+msgid "guest_create_account_failed"
+msgstr "Guest account creation failed"
+
+msgid "message_cannot_be_empty"
+msgstr "Message cannot be empty"
+
+msgid "send_message_success"
+msgstr "Message sent successfully"
+
+msgid "guest_not_found"
+msgstr "Guest not found"
+
+# ====================
+# TABLES
+# ====================
+msgid "get_all_table_success"
+msgstr "Get all tables successful"
+
+msgid "create_table_success"
+msgstr "Create table successful"
+
+msgid "create_table_error"
+msgstr "Create table failed"
+
+msgid "table_not_found"
+msgstr "Table not found"
+
+msgid "get_table_success"
+msgstr "Get table details successful"
+
+msgid "delete_table_success"
+msgstr "Delete table successful"
+
+msgid "update_table_success"
+msgstr "Update table successful"
+
+msgid "update_table_error"
+msgstr "Update table failed"
+
+# ====================
+# CATEGORIES
+# ====================
+msgid "get_all_categories_success"
+msgstr "Get all categories successful"
+
+msgid "create_category_success"
+msgstr "Create category successful"
+
+msgid "create_category_error"
+msgstr "Create category failed"
+
+msgid "category_not_found"
+msgstr "Category not found"
+
+msgid "get_category_success"
+msgstr "Get category details successful"
+
+msgid "delete_category_success"
+msgstr "Delete category successful"
+
+msgid "update_category_success"
+msgstr "Update category successful"
+
+msgid "update_category_error"
+msgstr "Update category failed"
+
+# ====================
+# DISHES
+# ====================
+msgid "get_all_dish_success"
+msgstr "Get all dishes successful"
+
+msgid "get_all_dish_error"
+msgstr "Get all dishes failed"
+
+msgid "create_dish_success"
+msgstr "Create dish successful"
+
+msgid "create_dish_error"
+msgstr "Create dish failed"
+
+msgid "get_dish_success"
+msgstr "Get dish details successful"
+
+msgid "dish_not_found"
+msgstr "Dish not found"
+
+msgid "get_dish_error"
+msgstr "Get dish details failed"
+
+msgid "delete_dish_success"
+msgstr "Delete dish successful"
+
+msgid "delete_dish_error"
+msgstr "Delete dish failed"
+
+msgid "update_dish_success"
+msgstr "Update dish successful"
+
+msgid "update_dish_error"
+msgstr "Update dish failed"
+
+# ====================
+# ORDERS
+# ====================
+msgid "get_all_order_success"
+msgstr "Get all orders successful"
+
+msgid "get_all_order_error"
+msgstr "Get all orders failed"
+
+msgid "order_created"
+msgstr "Order created successfully"
+
+msgid "create_order_error"
+msgstr "Create order failed"
+
+msgid "get_order_success"
+msgstr "Get order details successful"
+
+msgid "order_not_found"
+msgstr "Order not found"
+
+msgid "get_order_error"
+msgstr "Get order details failed"
+
+msgid "order_already_cancelled"
+msgstr "Order is already cancelled"
+
+msgid "delete_order_success"
+msgstr "Delete order successful"
+
+msgid "delete_order_error"
+msgstr "Delete order failed"
+
+msgid "update_order_status_success"
+msgstr "Update order status successful"
+
+msgid "update_order_status_error"
+msgstr "Update order status failed"
+
+msgid "cannot_update_cancelled_or_completed_order"
+msgstr "Cannot update order that is cancelled or completed"
+
+msgid "update_order_success"
+msgstr "Update order successful"
+
+msgid "update_order_error"
+msgstr "Update order failed"
+
+msgid "update_order_items_success"
+msgstr "Update order items successful"
+
+msgid "update_order_items_error"
+msgstr "Update order items failed"
+
+msgid "order_desc"
+msgstr "Order Payment #"
+
+msgid "order_qr_code_create_url_success"
+msgstr "Create QR code payment URL successful"
+
+msgid "order_cash_create_success"
+msgstr "Set payment method to Cash successful"
+
+msgid "invalid_request_data"
+msgstr "Invalid request data"
+
+# ====================
+# UPLOAD & COMMON
+# ====================
+msgid "no_file_provided"
+msgstr "No file provided"
+
+msgid "file_too_large"
+msgstr "File is too large"
+
+msgid "file_type_not_allowed"
+msgstr "File type not allowed"
+
+msgid "file_uploaded_successfully"
+msgstr "File uploaded successfully"
+
+msgid "employee_update_password_help"
+msgstr "Optional. If provided, employee password will be updated (must be at least 6 characters)"
+
