@@ -8,7 +8,7 @@ from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIV
 from restaurantBE.categories.models import Category
 from restaurantBE.categories.serializers import CategorySerializer
 import logging
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 from restaurantBE.dishes.models import Dish
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
