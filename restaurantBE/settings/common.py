@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "restaurantBE.dishes",
     "restaurantBE.categories",
     "restaurantBE.orders",
+    "restaurantBE.analist",
 ]
 
 MIDDLEWARE = [
