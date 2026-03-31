@@ -334,6 +334,15 @@ class OrderUpdateStatusAPIView(GenericAPIView):
                 instance.status = serializer.validated_data["status"]
                 instance.save()
                 response_serializer = OrderSerializer(instance)
+                if instance.status == OrderStatus.COMPLETED:
+                    # Nếu order được cập nhật thành COMPLETED, cập nhật status của bàn về AVAILABLE
+                    table = Table.objects.filter(
+                        number=instance.table_number_id
+                    ).first()
+                    if table:
+                        table.status = TableStatus.AVAILABLE
+                        table.save()
+
                 return apiSuccess(
                     response_serializer.data, msg=_("update_order_status_success")
                 )
