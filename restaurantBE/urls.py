@@ -34,4 +34,5 @@ urlpatterns = [
     path("api/", include("restaurantBE.dishes.urls"), name="dishes"),
     path("api/", include("restaurantBE.categories.urls"), name="categories"),
     path("api/", include("restaurantBE.orders.urls"), name="orders"),
+    path("api/", include("restaurantBE.analist.urls"), name="analist"),
 ]
