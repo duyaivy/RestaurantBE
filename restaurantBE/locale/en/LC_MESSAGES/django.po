@@ -639,3 +639,129 @@ msgstr "File uploaded successfully"
 msgid "employee_update_password_help"
 msgstr "Optional. If provided, employee password will be updated (must be at least 6 characters)"
 
+# ====================
+# MISSING KEYS (AUTO-ADDED)
+# ====================
+msgid "admin"
+msgstr "Admin"
+
+msgid "analist_ping_success"
+msgstr "Analyst data fetched successfully"
+
+msgid "at_least_one_action_required"
+msgstr "At least one action is required"
+
+msgid "available"
+msgstr "Available"
+
+msgid "can_not_create_payment"
+msgstr "Cannot create payment"
+
+msgid "cannot_be_empty"
+msgstr "Cannot be empty"
+
+msgid "cannot_update_to_canceled_status"
+msgstr "Cannot update to cancelled status"
+
+msgid "capacity_invalid"
+msgstr "Invalid capacity"
+
+msgid "cash"
+msgstr "Cash"
+
+msgid "cooking"
+msgstr "Cooking"
+
+msgid "description_must_be_json"
+msgstr "Description must be JSON"
+
+msgid "description_must_be_object"
+msgstr "Description must be an object"
+
+msgid "description_must_be_string"
+msgstr "Description must be a string"
+
+msgid "description_required"
+msgstr "Description is required"
+
+msgid "dish_not_available"
+msgstr "Dish is not available"
+
+msgid "employee"
+msgstr "Employee"
+
+msgid "from_must_be_before_or_equal_to_to"
+msgstr "From datetime must be before or equal to to datetime"
+
+msgid "guest"
+msgstr "Guest"
+
+msgid "hidden"
+msgstr "Hidden"
+
+msgid "invalid_status_transition"
+msgstr "Invalid status transition"
+
+msgid "name_en_must_be_non_empty_string_if_provided"
+msgstr "English name must be a non-empty string if provided"
+
+msgid "name_must_be_json"
+msgstr "Name must be JSON"
+
+msgid "name_required"
+msgstr "Name is required"
+
+msgid "name_too_short"
+msgstr "Name is too short"
+
+msgid "not_an_object"
+msgstr "Not an object"
+
+msgid "order_id_required"
+msgstr "order_id is required"
+
+msgid "order_items_required"
+msgstr "Order items are required"
+
+msgid "ordered"
+msgstr "Ordered"
+
+msgid "preparing"
+msgstr "Preparing"
+
+msgid "price_invalid"
+msgstr "Invalid price"
+
+msgid "qr_code"
+msgstr "QR code"
+
+msgid "refresh_token_blank"
+msgstr "Refresh token cannot be blank"
+
+msgid "refresh_token_required"
+msgstr "Refresh token is required"
+
+msgid "reserved"
+msgstr "Reserved"
+
+msgid "send_message_failed"
+msgstr "Failed to send message"
+
+msgid "served"
+msgstr "Served"
+
+msgid "table_already_exists"
+msgstr "Table already exists"
+
+msgid "table_not_available"
+msgstr "Table is not available"
+
+msgid "table_token_required"
+msgstr "Table token is required"
+
+msgid "unavailable"
+msgstr "Unavailable"
+
+msgid "user_must_be_employee_or_admin"
+msgstr "User must be employee or admin"
+

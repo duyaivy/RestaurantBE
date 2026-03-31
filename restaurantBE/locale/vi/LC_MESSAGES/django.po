@@ -57,6 +57,129 @@ msgid "employee_update_password_help"
 msgstr "Tùy chọn. Nếu cung cấp, mật khẩu nhân viên sẽ được cập nhật (phải có ít nhất 6 ký tự)"
 
 # ====================
+# MISSING KEYS (AUTO-ADDED)
+# ====================
+msgid "admin"
+msgstr "Quản trị viên"
+
+msgid "analist_ping_success"
+msgstr "Lấy dữ liệu phân tích thành công"
+
+msgid "at_least_one_action_required"
+msgstr "Cần ít nhất một hành động"
+
+msgid "available"
+msgstr "Có sẵn"
+
+msgid "can_not_create_payment"
+msgstr "Không thể tạo thanh toán"
+
+msgid "cannot_be_empty"
+msgstr "Không được để trống"
+
+msgid "cannot_update_to_canceled_status"
+msgstr "Không thể cập nhật sang trạng thái đã hủy"
+
+msgid "capacity_invalid"
+msgstr "Sức chứa không hợp lệ"
+
+msgid "cash"
+msgstr "Tiền mặt"
+
+msgid "cooking"
+msgstr "Đang nấu"
+
+msgid "description_must_be_json"
+msgstr "Mô tả phải là JSON"
+
+msgid "description_must_be_object"
+msgstr "Mô tả phải là object"
+
+msgid "description_must_be_string"
+msgstr "Mô tả phải là chuỗi"
+
+msgid "description_required"
+msgstr "Mô tả là bắt buộc"
+
+msgid "dish_not_available"
+msgstr "Món ăn hiện không khả dụng"
+
+msgid "employee"
+msgstr "Nhân viên"
+
+msgid "from_must_be_before_or_equal_to_to"
+msgstr "Thời gian bắt đầu phải nhỏ hơn hoặc bằng thời gian kết thúc"
+
+msgid "guest"
+msgstr "Khách"
+
+msgid "hidden"
+msgstr "Ẩn"
+
+msgid "invalid_status_transition"
+msgstr "Chuyển trạng thái không hợp lệ"
+
+msgid "name_en_must_be_non_empty_string_if_provided"
+msgstr "Tên tiếng Anh nếu cung cấp thì phải là chuỗi không rỗng"
+
+msgid "name_must_be_json"
+msgstr "Tên phải là JSON"
+
+msgid "name_required"
+msgstr "Tên là bắt buộc"
+
+msgid "name_too_short"
+msgstr "Tên quá ngắn"
+
+msgid "not_an_object"
+msgstr "Không phải object"
+
+msgid "order_id_required"
+msgstr "order_id là bắt buộc"
+
+msgid "order_items_required"
+msgstr "Danh sách món trong đơn là bắt buộc"
+
+msgid "ordered"
+msgstr "Đã đặt"
+
+msgid "preparing"
+msgstr "Đang chuẩn bị"
+
+msgid "price_invalid"
+msgstr "Giá không hợp lệ"
+
+msgid "qr_code"
+msgstr "Mã QR"
+
+msgid "refresh_token_blank"
+msgstr "Refresh token không được để trống"
+
+msgid "reserved"
+msgstr "Đã đặt trước"
+
+msgid "send_message_failed"
+msgstr "Gửi tin nhắn thất bại"
+
+msgid "served"
+msgstr "Đã phục vụ"
+
+msgid "table_already_exists"
+msgstr "Bàn đã tồn tại"
+
+msgid "table_not_available"
+msgstr "Bàn không khả dụng"
+
+msgid "table_token_required"
+msgstr "Yêu cầu token của bàn"
+
+msgid "unavailable"
+msgstr "Không khả dụng"
+
+msgid "user_must_be_employee_or_admin"
+msgstr "Người dùng phải là nhân viên hoặc quản trị viên"
+
+# ====================
 # AUTH & ACCOUNTS
 # ====================
 msgid "email_or_password_incorrect"

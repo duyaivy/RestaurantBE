@@ -19,6 +19,11 @@ class Dish(models.Model):
 
     class Meta:
         db_table = "dish"
+        indexes = [
+            models.Index(fields=["status"], name="idx_dish_status"),
+            models.Index(fields=["category_id"], name="idx_dish_category"),
+            models.Index(fields=["created_at"], name="idx_dish_created_at"),
+        ]
 
     def __str__(self):
         return f"Dish {self.id}"
@@ -35,6 +40,11 @@ class DishSnapshot(models.Model):
 
     class Meta:
         db_table = "dish_snapshot"
+        indexes = [
+            models.Index(fields=["dish_id"], name="idx_ds_dish_id"),
+            models.Index(fields=["created_at"], name="idx_ds_created_at"),
+            models.Index(fields=["updated_at"], name="idx_ds_updated_at"),
+        ]
 
     def __str__(self):
         return f"DishSnapshot {self.id}"
