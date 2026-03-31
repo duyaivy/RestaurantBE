@@ -15,6 +15,9 @@ class Table(models.Model):
     class Meta:
         db_table = "Table"
         ordering = ["number"]
+        indexes = [
+            models.Index(fields=["status"], name="idx_table_status"),
+        ]
 
     def __str__(self):
         return f"Table {self.number}"
