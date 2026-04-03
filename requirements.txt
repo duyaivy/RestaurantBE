@@ -27,3 +27,8 @@ pre-commit==2.20.0
 
 # Certificates
 cryptography~=37.0.4
+
+# Socket.IO real-time layer
+python-socketio[asyncio]==5.*
+aioredis==2.*
+uvicorn[standard]

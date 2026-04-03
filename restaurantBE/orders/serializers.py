@@ -348,4 +348,42 @@ class OrderCreatePaymentSerializer(serializers.Serializer):
             raise ValidationError({"order_id": _("can_not_create_payment")})
             
         return data
-    
+
+
+# ──────────────────────────────────────────────────────────
+# Socket.IO serializers (internal — not exposed as REST endpoints)
+# ──────────────────────────────────────────────────────────
+
+class OrderItemSocketSerializer(serializers.ModelSerializer):
+    """Internal serializer for Socket.IO order item payloads."""
+    dish_name = serializers.JSONField(source="dish_snapshot_id.name", read_only=True)
+    status = serializers.CharField(source="item_status", read_only=True)
+    price = serializers.DecimalField(
+        source="dish_snapshot_id.price", max_digits=10, decimal_places=2, read_only=True
+    )
+
+    class Meta:
+        model = OrderItem
+        fields = [
+            "id",
+            "dish_name",
+            "price",
+            "quantity",
+            "status",
+        ]
+
+
+class OrderSocketSerializer(serializers.ModelSerializer):
+    """Internal serializer for Socket.IO order payloads."""
+    items = OrderItemSocketSerializer(source="orderitem_set", many=True, read_only=True)
+    table_number = serializers.IntegerField(source="table_number_id", read_only=True)
+
+    class Meta:
+        model = Order
+        fields = [
+            "id",
+            "table_number",
+            "status",
+            "items",
+            "created_at",
+        ]
