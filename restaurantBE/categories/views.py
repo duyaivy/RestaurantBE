@@ -4,17 +4,18 @@ from restaurantBE.utils.responses import apiError, apiSuccess
 from rest_framework import status
 from restaurantBE.utils.permissions import IsAdminOrEmployee
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.generics import RetrieveAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from restaurantBE.categories.models import Category
 from restaurantBE.categories.serializers import CategorySerializer
 import logging
 from django.utils.translation import gettext as _
 from restaurantBE.dishes.models import Dish
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 logger = logging.getLogger(__name__)
 
 
-class CategoryRetrieveListAPIView(RetrieveAPIView):
+class CategoryRetrieveListAPIView(ListCreateAPIView):
     """
     API view for listing all categories and creating new category
     GET /categories/ - Get all categories
@@ -22,10 +23,22 @@ class CategoryRetrieveListAPIView(RetrieveAPIView):
     """
 
     queryset = Category.objects.all()
-    permission_classes = [IsAuthenticated, IsAdminOrEmployee]
     serializer_class = CategorySerializer
 
-    def get(self, request, *args, **kwargs):
+    authentication_classes = []
+
+    def get_authenticators(self):
+        if self.request.method == "GET":
+            return []
+        return super().get_authenticators()
+
+    # permission_classes = []
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return []
+        return [IsAuthenticated(), IsAdminOrEmployee()]
+
+    def list(self, request, *args, **kwargs):
         """Get all categories"""
         data = self.get_queryset().all()
         serializer = self.get_serializer(data, many=True)
