@@ -26,6 +26,11 @@ class DishListCreateAPIView(ListCreateAPIView):
     serializer_class = DishSerializer
     authentication_classes = []
 
+    def get_authenticators(self):
+        if self.request.method == "GET":
+            return []
+        return super().get_authenticators()
+
     def get_permissions(self):
         if self.request.method == "GET":
             return []
@@ -108,6 +113,16 @@ class DishRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     serializer_class = DishSerializer
     lookup_field = "pk"
     authentication_classes = []
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return []
+        return [IsAuthenticated(), IsAdminOrEmployee()]
+
+    def get_authenticators(self):
+        if self.request.method == "GET":
+            return []
+        return super().get_authenticators()
 
     def get_permissions(self):
         if self.request.method == "GET":

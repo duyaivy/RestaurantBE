@@ -175,3 +175,16 @@ VNPAY_PAYMENT_URL = os.getenv("VNPAY_PAYMENT_URL")
 VNPAY_RETURN_URL = os.getenv("VNPAY_RETURN_URL")
 VNPAY_ORDER_TYPE = os.getenv("VNPAY_ORDER_TYPE")
 CLIENT_URL = os.getenv("CLIENT_URL", "http://localhost:3000")
+
+# Translation
+LOCALIZED_FIELD_LANGUAGES = tuple(code for code, _ in LANGUAGES)
+GOOGLE_TRANSLATION_ENABLED = os.getenv(
+    "GOOGLE_TRANSLATION_ENABLED", "false"
+).lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
+GOOGLE_TRANSLATION_PROJECT_ID = os.getenv("GOOGLE_TRANSLATION_PROJECT_ID")
+GOOGLE_TRANSLATION_LOCATION = os.getenv("GOOGLE_TRANSLATION_LOCATION", "global")
