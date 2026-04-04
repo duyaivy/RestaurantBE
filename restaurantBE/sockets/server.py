@@ -1,21 +1,9 @@
 """Socket.IO server setup backed by Redis pub/sub."""
 
-import os
-
 import socketio
+from django.conf import settings
 
-
-def _get_redis_url() -> str:
-    """Prefer Django settings, fallback to environment/default for local runs."""
-    try:
-        from django.conf import settings
-
-        return getattr(settings, "REDIS_URL", os.getenv("REDIS_URL", "redis://localhost:6379/0"))
-    except Exception:
-        return os.getenv("REDIS_URL", "redis://localhost:6379/0")
-
-
-REDIS_URL = _get_redis_url()
+REDIS_URL = settings.REDIS_URL
 
 sio = socketio.AsyncServer(
     async_mode="asgi",
