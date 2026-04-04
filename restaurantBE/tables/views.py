@@ -17,6 +17,11 @@ logger = logging.getLogger(__name__)
 class TableRetrieveListAPIView(RetrieveAPIView):
     queryset = Table.objects.all()
 
+    def get_authenticators(self):
+        if self.request.method == "GET":
+            return []
+        return super().get_authenticators()
+
     def get_permissions(self):
         if self.request.method == "GET":
             return []
@@ -57,9 +62,18 @@ class TableRetrieveListAPIView(RetrieveAPIView):
 class TableRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Table.objects.all()
     serializer_class = TableSerializer
-    permission_classes = [IsAuthenticated, IsAdminOrEmployee]
     lookup_field = "number"
     lookup_url_kwarg = "number"
+
+    def get_authenticators(self):
+        if self.request.method == "GET":
+            return []
+        return super().get_authenticators()
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return []
+        return [IsAuthenticated(), IsAdminOrEmployee()]
 
     def retrieve(self, request, *args, **kwargs):
         try:
