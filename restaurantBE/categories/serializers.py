@@ -1,8 +1,11 @@
 from rest_framework import serializers
 from restaurantBE.categories.models import Category
 from django.utils.translation import gettext_lazy as _
+from django.conf import settings
+from restaurantBE.utils.translation import build_multilingual_value
 
-SUPPORTED_LANGS = ("vi", "en")
+SOURCE_LANGUAGE = "vi"
+SUPPORTED_LANGS = tuple(code for code, _ in settings.LANGUAGES)
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -29,6 +32,16 @@ class CategorySerializer(serializers.ModelSerializer):
         - require vi
         - en optional (if provided must be non-empty)
         """
+        if isinstance(value, str):
+            normalized = value.strip()
+            if not normalized:
+                raise serializers.ValidationError(_("cannot_be_empty"))
+            return build_multilingual_value(
+                normalized,
+                source_language=SOURCE_LANGUAGE,
+                target_languages=SUPPORTED_LANGS,
+            )
+
         if not isinstance(value, dict):
             raise serializers.ValidationError(_("not_an_object"))
 
@@ -58,6 +71,16 @@ class CategorySerializer(serializers.ModelSerializer):
         """
         if value is None:
             return value
+
+        if isinstance(value, str):
+            normalized = value.strip()
+            if not normalized:
+                raise serializers.ValidationError(_("description_must_be_string"))
+            return build_multilingual_value(
+                normalized,
+                source_language=SOURCE_LANGUAGE,
+                target_languages=SUPPORTED_LANGS,
+            )
 
         if not isinstance(value, dict):
             raise serializers.ValidationError(_("description_must_be_object"))
