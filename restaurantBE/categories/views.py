@@ -10,6 +10,7 @@ from restaurantBE.categories.serializers import CategorySerializer
 import logging
 from django.utils.translation import gettext as _
 from restaurantBE.dishes.models import Dish
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 logger = logging.getLogger(__name__)
 

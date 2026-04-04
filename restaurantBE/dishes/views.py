@@ -16,6 +16,7 @@ import logging
 from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +24,7 @@ logger = logging.getLogger(__name__)
 class DishListCreateAPIView(ListCreateAPIView):
     queryset = Dish.objects.select_related("category_id").order_by("id")
     serializer_class = DishSerializer
+    authentication_classes = []
 
     def get_authenticators(self):
         if self.request.method == "GET":
@@ -110,6 +112,12 @@ class DishRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Dish.objects.select_related("category_id").all()
     serializer_class = DishSerializer
     lookup_field = "pk"
+    authentication_classes = []
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return []
+        return [IsAuthenticated(), IsAdminOrEmployee()]
 
     def get_authenticators(self):
         if self.request.method == "GET":
