@@ -4,7 +4,7 @@ from restaurantBE.utils.responses import apiError, apiSuccess
 from rest_framework import status
 from restaurantBE.utils.permissions import IsAdminOrEmployee
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.generics import RetrieveAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from restaurantBE.categories.models import Category
 from restaurantBE.categories.serializers import CategorySerializer
 import logging
@@ -14,7 +14,7 @@ from restaurantBE.dishes.models import Dish
 logger = logging.getLogger(__name__)
 
 
-class CategoryRetrieveListAPIView(RetrieveAPIView):
+class CategoryRetrieveListAPIView(ListCreateAPIView):
     """
     API view for listing all categories and creating new category
     GET /categories/ - Get all categories
@@ -22,10 +22,20 @@ class CategoryRetrieveListAPIView(RetrieveAPIView):
     """
 
     queryset = Category.objects.all()
-    permission_classes = [IsAuthenticated, IsAdminOrEmployee]
     serializer_class = CategorySerializer
 
-    def get(self, request, *args, **kwargs):
+    def get_authenticators(self):
+        if self.request.method == "GET":
+            return []
+        return super().get_authenticators()
+
+    # permission_classes = []
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return []
+        return [IsAuthenticated(), IsAdminOrEmployee()]
+
+    def list(self, request, *args, **kwargs):
         """Get all categories"""
         data = self.get_queryset().all()
         serializer = self.get_serializer(data, many=True)
@@ -62,9 +72,18 @@ class CategoryRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [IsAuthenticated, IsAdminOrEmployee]
     lookup_field = "id"
     lookup_url_kwarg = "id"
+
+    def get_authenticators(self):
+        if self.request.method == "GET":
+            return []
+        return super().get_authenticators()
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return []
+        return [IsAuthenticated(), IsAdminOrEmployee()]
 
     def retrieve(self, request, *args, **kwargs):
         """Get category by id"""

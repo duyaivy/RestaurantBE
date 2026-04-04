@@ -24,6 +24,11 @@ class DishListCreateAPIView(ListCreateAPIView):
     queryset = Dish.objects.select_related("category_id").order_by("id")
     serializer_class = DishSerializer
 
+    def get_authenticators(self):
+        if self.request.method == "GET":
+            return []
+        return super().get_authenticators()
+
     def get_permissions(self):
         if self.request.method == "GET":
             return []
@@ -104,8 +109,17 @@ class DishListCreateAPIView(ListCreateAPIView):
 class DishRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Dish.objects.select_related("category_id").all()
     serializer_class = DishSerializer
-    permission_classes = [IsAuthenticated, IsAdminOrEmployee]
     lookup_field = "pk"
+
+    def get_authenticators(self):
+        if self.request.method == "GET":
+            return []
+        return super().get_authenticators()
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return []
+        return [IsAuthenticated(), IsAdminOrEmployee()]
 
     def retrieve(self, request, *args, **kwargs):
         try:

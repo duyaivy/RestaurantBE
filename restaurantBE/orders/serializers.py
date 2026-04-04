@@ -75,8 +75,8 @@ class OrderCreateSerializer(serializers.Serializer):
     def validate_table_number_id(self, value):
         if not Table.objects.filter(number=value).exists():
             raise serializers.ValidationError(_("table_not_found"))
-        if Table.objects.filter(number=value).first().status != TableStatus.AVAILABLE:
-            raise ValidationError(_("table_not_available"))
+        if Table.objects.filter(number=value).first().status == TableStatus.HIDDEN:
+            raise ValidationError(_("table_is_hidden"))
         return value
 
     def validate_items(self, value):

@@ -3,6 +3,7 @@ Setting for production deployment
 """
 
 from .common import *
+from urllib.parse import urlparse, parse_qsl
 
 DEBUG = os.getenv("ENV", default="dev") == "dev"
 
@@ -18,14 +19,19 @@ HOST = os.getenv("HOST", "http://localhost:8000/")
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+
+# Replace the DATABASES section of your settings.py with this
+tmpPostgres = urlparse(os.getenv("DATABASE_URL"))
+
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": os.getenv("DB_NAME", "restaurant"),
-        "USER": os.getenv("DB_USERNAME", "postgres"),
-        "PASSWORD": os.getenv("DB_PASSWORD", "postgres"),
-        "HOST": os.getenv("DB_HOST", "localhost"),
-        "PORT": os.getenv("DB_PORT", "5432"),
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": tmpPostgres.path.replace("/", ""),
+        "USER": tmpPostgres.username,
+        "PASSWORD": tmpPostgres.password,
+        "HOST": tmpPostgres.hostname,
+        "PORT": 5432,
+        "OPTIONS": dict(parse_qsl(tmpPostgres.query)),
     }
 }
 
