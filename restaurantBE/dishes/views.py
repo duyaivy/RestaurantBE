@@ -24,7 +24,6 @@ logger = logging.getLogger(__name__)
 class DishListCreateAPIView(ListCreateAPIView):
     queryset = Dish.objects.select_related("category_id").order_by("id")
     serializer_class = DishSerializer
-    authentication_classes = []
 
     def get_authenticators(self):
         if self.request.method == "GET":
@@ -112,7 +111,6 @@ class DishRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Dish.objects.select_related("category_id").all()
     serializer_class = DishSerializer
     lookup_field = "pk"
-    authentication_classes = []
 
     def get_permissions(self):
         if self.request.method == "GET":
@@ -123,11 +121,6 @@ class DishRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         if self.request.method == "GET":
             return []
         return super().get_authenticators()
-
-    def get_permissions(self):
-        if self.request.method == "GET":
-            return []
-        return [IsAuthenticated(), IsAdminOrEmployee()]
 
     def retrieve(self, request, *args, **kwargs):
         try:
