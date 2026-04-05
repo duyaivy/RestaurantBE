@@ -25,8 +25,6 @@ class CategoryRetrieveListAPIView(ListCreateAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
-    authentication_classes = []
-
     def get_authenticators(self):
         if self.request.method == "GET":
             return []
@@ -75,9 +73,18 @@ class CategoryRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [IsAuthenticated, IsAdminOrEmployee]
     lookup_field = "id"
     lookup_url_kwarg = "id"
+
+    def get_authenticators(self):
+        if self.request.method == "GET":
+            return []
+        return super().get_authenticators()
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return []
+        return [IsAuthenticated(), IsAdminOrEmployee()]
 
     def retrieve(self, request, *args, **kwargs):
         """Get category by id"""

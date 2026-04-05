@@ -34,6 +34,15 @@ services:
         sync: false
       - key: CLIENT_URL
         sync: false
+      # Google Translation
+      - key: GOOGLE_TRANSLATION_ENABLED
+        value: "true"
+      - key: GOOGLE_TRANSLATION_PROJECT_ID
+        sync: false
+      - key: GOOGLE_TRANSLATION_LOCATION
+        value: "global"
+      - key: GOOGLE_CREDENTIALS_JSON_BASE64
+        sync: false
       # VNPay
       - key: VNPAY_TMN_CODE
         sync: false

@@ -178,3 +178,15 @@ CLIENT_URL = os.getenv("CLIENT_URL", "http://localhost:3000")
 
 # Redis (used by Socket.IO AsyncRedisManager for cross-process emit)
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+# Translation
+LOCALIZED_FIELD_LANGUAGES = tuple(code for code, _ in LANGUAGES)
+GOOGLE_TRANSLATION_ENABLED = os.getenv(
+    "GOOGLE_TRANSLATION_ENABLED", "false"
+).lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
+GOOGLE_TRANSLATION_PROJECT_ID = os.getenv("GOOGLE_TRANSLATION_PROJECT_ID")
+GOOGLE_TRANSLATION_LOCATION = os.getenv("GOOGLE_TRANSLATION_LOCATION", "global")

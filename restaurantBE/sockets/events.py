@@ -65,6 +65,7 @@ async def connect(sid, environ, auth):
 @sio.event
 async def disconnect(sid):
     """Clean up room membership on disconnect."""
+    logger.info("SIO disconnect sid=%s", sid)
     try:
         session = await sio.get_session(sid)
         if session and "room" in session:
@@ -75,35 +76,9 @@ async def disconnect(sid):
 
 
 @sio.event
-async def join_table_chat(sid, data):
-    """Join staff/guest into a specific table chat room."""
-    session = await sio.get_session(sid)
-    role = session.get("role")
-    payload = data if isinstance(data, dict) else {}
-
-    try:
-        if role in {Role.ADMIN, Role.EMPLOYEE}:
-            table_number = int(payload.get("table_number"))
-        elif role == Role.GUEST:
-            table_number = int(session.get("table_number"))
-        else:
-            await sio.emit("chat_error", {"message": "unauthorized"}, to=sid)
-            return {"ok": False, "message": "unauthorized"}
-    except (TypeError, ValueError):
-        await sio.emit("chat_error", {"message": "table_number_required"}, to=sid)
-        return {"ok": False, "message": "table_number_required"}
-
-    room = _table_room(table_number)
-    await sio.enter_room(sid, room)
-    session.update({"chat_room": room, "table_number": table_number})
-    await sio.save_session(sid, session)
-
-    return {"ok": True, "room": room, "table_number": table_number}
-
-
-@sio.event
 async def chat_send(sid, data):
-    """Send chat message between staff and guest in the same table room."""
+    """Send chat message between staff and guest."""
+    logger.info("SIO chat_send sid=%s data=%s", sid, data)
     session = await sio.get_session(sid)
     payload = data if isinstance(data, dict) else {}
     message = str(payload.get("message", "")).strip()
@@ -113,35 +88,39 @@ async def chat_send(sid, data):
         return {"ok": False, "message": "message_required"}
 
     role = session.get("role")
-    room = session.get("chat_room")
-    table_number = session.get("table_number")
-
-    if role in {Role.ADMIN, Role.EMPLOYEE} and not room:
+    
+    # Identify target table
+    if role in {Role.ADMIN, Role.EMPLOYEE}:
         try:
             table_number = int(payload.get("table_number"))
-            room = _table_room(table_number)
-            await sio.enter_room(sid, room)
-            session.update({"chat_room": room, "table_number": table_number})
-            await sio.save_session(sid, session)
         except (TypeError, ValueError):
             await sio.emit("chat_error", {"message": "table_number_required"}, to=sid)
             return {"ok": False, "message": "table_number_required"}
-
-    if role == Role.GUEST and not room and table_number:
-        room = _table_room(int(table_number))
-        await sio.enter_room(sid, room)
-        session["chat_room"] = room
-        await sio.save_session(sid, session)
-
-    if not room:
-        await sio.emit("chat_error", {"message": "chat_room_not_joined"}, to=sid)
-        return {"ok": False, "message": "chat_room_not_joined"}
+    else:
+        table_number = session.get("table_number")
+        if not table_number:
+            await sio.emit("chat_error", {"message": "guest_has_no_table"}, to=sid)
+            return {"ok": False, "message": "guest_has_no_table"}
 
     chat_payload = {
         "message": message,
         "sender_role": role,
         "sender_id": session.get("actor_id"),
-        "table_number": session.get("table_number"),
+        "table_number": table_number,
     }
-    await sio.emit("chat_message", chat_payload, room=room)
+
+    # Broadcast to both table room and staff room so everyone sees it
+    table_room = _table_room(table_number)
+    staff_room = "staff_notifications"
+
+    await sio.emit("chat_message", chat_payload, room=table_room)
+    await sio.emit("chat_message", chat_payload, room=staff_room)
+    
     return {"ok": True}
+
+
+@sio.on("*")
+async def catch_all(event, sid, *args):
+    """Catch all other events for debugging."""
+    logger.info("SIO catch_all sid=%s event=%s data=%s", sid, event, args)
+

@@ -335,18 +335,18 @@ class OrderCreatePaymentSerializer(serializers.Serializer):
     def validate(self, data):
         view = self.context.get('view')
         order_id = view.kwargs.get('pk') if view else None
-        
+
         if not order_id:
             raise ValidationError({"order_id": _("order_id_required")})
 
         order = Order.objects.filter(id=order_id)
         if not order.exists():
             raise ValidationError({"order_id": _("order_not_found")})
-            
+
         first_order = order.first()
         if first_order.status == OrderStatus.COMPLETED or first_order.status == OrderStatus.CANCELLED:
             raise ValidationError({"order_id": _("can_not_create_payment")})
-            
+
         return data
 
 
