@@ -1,7 +1,7 @@
 from restaurantBE.constants import PaymentMethod
 from rest_framework.exceptions import ValidationError
 from restaurantBE.accounts.models import Account
-from restaurantBE.constants import TableStatus, OrderStatus, ORDER_STATUS_TRANSITIONS
+from restaurantBE.constants import TableStatus, OrderStatus, ORDER_STATUS_TRANSITIONS, OrderItemStatus
 from restaurantBE.constants.choices import Role
 from restaurantBE.tables.models import Table
 from restaurantBE.constants.common import Constant
@@ -43,6 +43,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
     image = serializers.CharField(
         source="dish_snapshot_id.image", max_length=255, read_only=True
     )
+    status = serializers.CharField(source="item_status", read_only=True)
 
     class Meta:
         model = OrderItem
@@ -54,7 +55,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
             "image",
             "quantity",
             "note",
-            "item_status",
+            "status",
             "total_amount",
         ]
         read_only_fields = ["id", "order_id"]
@@ -236,8 +237,9 @@ class OrderItemActionSerializer(serializers.Serializer):
 class OrderItemUpdateSerializer(serializers.Serializer):
 
     order_item_id = serializers.IntegerField(required=True)
-    quantity = serializers.IntegerField(min_value=1, required=True)
+    quantity = serializers.IntegerField(min_value=1, required=False)
     note = serializers.CharField(allow_blank=True, required=False)
+    status = serializers.ChoiceField(choices=OrderItemStatus.choices, required=False)
 
 
 class OrderItemsUpdateSerializer(serializers.Serializer):
@@ -369,6 +371,8 @@ class OrderItemSocketSerializer(serializers.ModelSerializer):
             "dish_name",
             "price",
             "quantity",
+            "note",
+            "total_amount",
             "status",
         ]
 
@@ -382,8 +386,13 @@ class OrderSocketSerializer(serializers.ModelSerializer):
         model = Order
         fields = [
             "id",
+            "guest_id",
             "table_number",
+            "order_handler_id",
             "status",
+            "payment_method",
+            "total_amount",
             "items",
             "created_at",
+            "updated_at",
         ]

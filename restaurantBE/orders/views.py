@@ -489,15 +489,20 @@ class OrderUpdateItemsAPIView(GenericAPIView):
                             id=item_data["order_item_id"], order_id=order
                         )
 
-                        # Update quantity và note
-                        order_item.quantity = item_data["quantity"]
+                        # Update quantity, note, and item_status
+                        if "quantity" in item_data:
+                            order_item.quantity = item_data["quantity"]
+                            # Recalculate total_amount
+                            order_item.total_amount = (
+                                order_item.dish_snapshot_id.price * order_item.quantity
+                            )
+                        
                         if "note" in item_data:
                             order_item.note = item_data["note"]
 
-                        # Recalculate total_amount
-                        order_item.total_amount = (
-                            order_item.dish_snapshot_id.price * order_item.quantity
-                        )
+                        if "status" in item_data:
+                            order_item.item_status = item_data["status"]
+
                         order_item.save()
                         updated_items.append(order_item)
 
@@ -720,3 +725,31 @@ class VerifyOrderVNpayView(GenericAPIView):
             logger.error(f"VNPay IPN error: {str(exc)}")
             # return JsonResponse({"RspCode": "99", "Message": "Invalid request"})
             return self._redirect_client("invalid")
+
+
+class GuestOrderListAPIView(GenericAPIView):
+    """
+    API lấy danh sách đơn hàng của một guest dựa theo guest_id (không phân trang).
+    Chỉ có guest mới được phép gọi API này.
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = OrderSerializer
+
+    def get(self, request, guest_id, *args, **kwargs):
+        try:
+            # Query tất cả orders của guest này (có thể thêm IsGuest custom check nếu cần)
+            orders = Order.objects.filter(guest_id=guest_id).order_by("-created_at")
+            
+            result = []
+            for order in orders:
+                order_data = OrderSerializer(order).data
+                order_items = OrderItem.objects.filter(order_id=order.id)
+                order_data["items"] = OrderItemSerializer(order_items, many=True).data
+                result.append(order_data)
+
+            return apiSuccess(result, msg=_("get_guest_orders_success"))
+        except Exception as e:
+            return apiError(
+                str(e), msg=_("get_guest_orders_error"), status=status.HTTP_400_BAD_REQUEST
+            )
+

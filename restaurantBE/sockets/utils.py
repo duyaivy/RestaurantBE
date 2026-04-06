@@ -12,6 +12,14 @@ def emit_new_order(order_data: dict):
         order_data,
         room="staff_notifications",
     )
+    
+    table_number = order_data.get("table_number")
+    if table_number is not None:
+        async_to_sync(sio.emit)(
+            "order_created",
+            order_data,
+            room=f"table_{table_number}",
+        )
 
 
 def emit_order_updated(table_number: int, order_data: dict):
@@ -20,4 +28,10 @@ def emit_order_updated(table_number: int, order_data: dict):
         "order_status_updated",
         order_data,
         room=f"table_{table_number}",
+    )
+    
+    async_to_sync(sio.emit)(
+        "order_status_updated",
+        order_data,
+        room="staff_notifications",
     )
