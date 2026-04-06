@@ -32,5 +32,5 @@ cryptography~=37.0.4
 
 # Socket.IO real-time layer
 python-socketio[asyncio]==5.*
-aioredis==2.*
+redis[hiredis]>=5.0.0
 uvicorn[standard]
