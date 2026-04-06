@@ -8,6 +8,21 @@ from drf_yasg.views import get_schema_view
 
 from rest_framework import permissions
 
+from django.db import connection
+from django.http import JsonResponse
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def health_check(request):
+    db_status = "ok"
+    try:
+        connection.ensure_connection()
+    except Exception:
+        db_status = "error"
+    return JsonResponse({"status": "ok", "db": db_status})
+
 schema_view = get_schema_view(
     openapi.Info(
         title="RestaurantBE API",
@@ -25,6 +40,7 @@ urlpatterns = [
         schema_view.with_ui("swagger", cache_timeout=0),
         name="schema-swagger-ui",
     ),
+    path("health/", health_check, name="health_check"),
     path("admin/", admin.site.urls),
     # api route
     path("api/", include("restaurantBE.accounts.urls"), name="accounts"),
