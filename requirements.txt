@@ -3,6 +3,7 @@ Django==3.2.14
 django-environ==0.9.0
 python-dotenv==1.0.1
 gunicorn==20.1.0
+setuptools<81
 
 # Persistence storage
 psycopg2-binary==2.9.3
@@ -28,3 +29,8 @@ pre-commit==2.20.0
 
 # Certificates
 cryptography~=37.0.4
+
+# Socket.IO real-time layer
+python-socketio[asyncio]==5.*
+aioredis==2.*
+uvicorn[standard]

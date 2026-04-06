@@ -12,7 +12,8 @@ from restaurantBE.orders.views import (
     OrderUpdateStatusAPIView,
     OrderUpdateAPIView,
     OrderUpdateItemsAPIView,
-    OrderCreatePaymentView
+    OrderCreatePaymentView,
+    GuestOrderListAPIView
 )
 
 urlpatterns = [
@@ -21,6 +22,10 @@ urlpatterns = [
     # Guest create order
     path(
         "orders/guest-create/", OrderCreateAPIView.as_view(), name="orders-guest-create"
+    ),
+    # Guest get orders
+    path(
+        "orders/guest/<int:guest_id>/", GuestOrderListAPIView.as_view(), name="orders-guest-list"
     ),
     # Staff create order (for guest)
     path(
