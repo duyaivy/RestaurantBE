@@ -13,6 +13,7 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 
+
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def health_check(request):
@@ -22,6 +23,7 @@ def health_check(request):
     except Exception:
         db_status = "error"
     return JsonResponse({"status": "ok", "db": db_status})
+
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -51,4 +53,5 @@ urlpatterns = [
     path("api/", include("restaurantBE.categories.urls"), name="categories"),
     path("api/", include("restaurantBE.orders.urls"), name="orders"),
     path("api/", include("restaurantBE.analist.urls"), name="analist"),
+    path("api/", include("restaurantBE.chatbot.urls"), name="chatbot"),
 ]

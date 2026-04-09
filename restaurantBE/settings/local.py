@@ -43,6 +43,9 @@ else:
         origin.strip() for origin in _cors_origins.split(",") if origin.strip()
     ]
 
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+DB_LOG_LEVEL = os.getenv("DJANGO_DB_LOG_LEVEL", "WARNING").upper()
+
 # Logging
 LOGGING = {
     "version": 1,
@@ -65,17 +68,23 @@ LOGGING = {
     },
     "root": {
         "handlers": ["console"],
-        "level": "INFO",
+        "level": LOG_LEVEL,
     },
     "loggers": {
         "django": {
             "handlers": ["console"],
-            "level": "INFO",
+            "level": LOG_LEVEL,
             "propagate": False,
         },
         "django.db": {
-            # database level logging
-            "level": "DEBUG"
+            "handlers": ["console"],
+            "level": DB_LOG_LEVEL,
+            "propagate": False,
+        },
+        "django.db.backends": {
+            "handlers": ["console"],
+            "level": DB_LOG_LEVEL,
+            "propagate": False,
         },
     },
 }

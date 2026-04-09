@@ -3,6 +3,7 @@ from restaurantBE.categories.models import Category, CategoryBriefSerializer
 from restaurantBE.dishes.models import Dish
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
+from restaurantBE.utils.currency import change_currency_from_vnd
 from restaurantBE.utils.translation import normalize_localized_field
 
 
@@ -22,7 +23,16 @@ class DishSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dish
         fields = "__all__"
-        read_only_fields = ["id", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at", "price_usd"]
+
+    def _compute_price_usd(self, price):
+        return change_currency_from_vnd(price, "USD")
+
+    def _attach_price_usd(self, validated_data):
+        price = validated_data.get("price")
+        if price is not None:
+            validated_data["price_usd"] = self._compute_price_usd(price)
+        return validated_data
 
     def _normalize_localized_field(self, value, field_key):
         try:
@@ -45,3 +55,11 @@ class DishSerializer(serializers.ModelSerializer):
         if value is None or value < 0:
             raise serializers.ValidationError(_("price_invalid"))
         return value
+
+    def create(self, validated_data):
+        validated_data = self._attach_price_usd(validated_data)
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        validated_data = self._attach_price_usd(validated_data)
+        return super().update(instance, validated_data)
