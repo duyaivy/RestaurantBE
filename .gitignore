@@ -273,5 +273,14 @@ tags
 .idea/
 
 .env
+.env.*
+!.env.example
+
+# Local vector DB data
+restaurantBE/chatbot/rag/.chroma/
+
+# Local runtime files
+*.sqlite3
+*.db
 
 sinuous-maker-479106-a7-5e0dca939152.json

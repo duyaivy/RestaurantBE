@@ -7,7 +7,11 @@ services:
     branch: main
     buildCommand: pip install -r requirements.txt
     startCommand: bash build.sh
-    healthCheckPath: /admin/
+    healthCheckPath: /health/
+    disk:
+      name: chroma-data
+      mountPath: /var/data/chroma
+      sizeGB: 1
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: restaurantBE.settings.production
@@ -34,6 +38,27 @@ services:
         sync: false
       - key: CLIENT_URL
         sync: false
+      # Chatbot (OpenRouter + local Chroma)
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: CHATBOT_LLM_BASE_URL
+        value: "https://openrouter.ai/api/v1"
+      - key: CHATBOT_LLM_MODEL
+        value: "nvidia/nemotron-3-super-120b-a12b:free"
+      - key: CHATBOT_LLM_TEMPERATURE
+        value: "0.2"
+      - key: CHATBOT_LLM_REASONING_ENABLED
+        value: "false"
+      - key: CHATBOT_EMBEDDING_BASE_URL
+        value: "https://openrouter.ai/api/v1"
+      - key: CHATBOT_EMBEDDING_MODEL
+        value: "text-embedding-3-small"
+      - key: CHATBOT_EMBEDDING_API_KEY
+        sync: false
+      - key: CHATBOT_CHROMA_DIR
+        value: "/var/data/chroma"
+      - key: CHATBOT_CHROMA_COLLECTION
+        value: "restaurant_chatbot"
       # Google Translation
       - key: GOOGLE_TRANSLATION_ENABLED
         value: "true"

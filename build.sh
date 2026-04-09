@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # exit on error
 set -o errexit
+set -o pipefail
 
 if [ -n "${GOOGLE_CREDENTIALS_JSON_BASE64:-}" ]; then
 	GCP_CREDENTIALS_PATH="/tmp/gcp-sa.json"
@@ -14,7 +15,7 @@ if [ -n "${GOOGLE_CREDENTIALS_JSON_BASE64:-}" ]; then
 	export GOOGLE_APPLICATION_CREDENTIALS="${GCP_CREDENTIALS_PATH}"
 fi
 
-python manage.py migrate
+python manage.py migrate --no-input
 if command -v msgfmt > /dev/null 2>&1; then
 	python manage.py compilemessages
 else
@@ -22,5 +23,4 @@ else
 fi
 python manage.py collectstatic --no-input
 
-# Use uvicorn (ASGI) instead of gunicorn (WSGI) to support Socket.IO WebSockets
 uvicorn restaurantBE.asgi:application --host 0.0.0.0 --port ${PORT:-10000}

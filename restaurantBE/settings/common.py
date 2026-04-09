@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "restaurantBE.categories",
     "restaurantBE.orders",
     "restaurantBE.analist",
+    "restaurantBE.chatbot",
 ]
 
 MIDDLEWARE = [
@@ -190,3 +191,30 @@ GOOGLE_TRANSLATION_ENABLED = os.getenv(
 }
 GOOGLE_TRANSLATION_PROJECT_ID = os.getenv("GOOGLE_TRANSLATION_PROJECT_ID")
 GOOGLE_TRANSLATION_LOCATION = os.getenv("GOOGLE_TRANSLATION_LOCATION", "global")
+
+# Chatbot embedding
+CHATBOT_EMBEDDING_BASE_URL = os.getenv(
+    "CHATBOT_EMBEDDING_BASE_URL", "https://integrate.api.nvidia.com/v1"
+)
+CHATBOT_EMBEDDING_MODEL = os.getenv(
+    "CHATBOT_EMBEDDING_MODEL", "nvidia/llama-3.2-nv-embedqa-1b-v2"
+)
+CHATBOT_EMBEDDING_API_KEY = os.getenv("CHATBOT_EMBEDDING_API_KEY")
+NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY")
+
+# Chatbot LLM (OpenRouter/OpenAI-compatible)
+CHATBOT_LLM_BASE_URL = os.getenv("CHATBOT_LLM_BASE_URL", "https://openrouter.ai/api/v1")
+CHATBOT_LLM_MODEL = os.getenv(
+    "CHATBOT_LLM_MODEL", "nvidia/nemotron-3-super-120b-a12b:free"
+)
+CHATBOT_LLM_TEMPERATURE = float(os.getenv("CHATBOT_LLM_TEMPERATURE", "0.2"))
+CHATBOT_LLM_REASONING_ENABLED = os.getenv(
+    "CHATBOT_LLM_REASONING_ENABLED", "false"
+).lower() in {"1", "true", "yes", "on"}
+
+# Primary key for chat completions through OpenRouter.
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+
+# Local Chroma vector DB
+CHATBOT_CHROMA_DIR = os.getenv("CHATBOT_CHROMA_DIR")
+CHATBOT_CHROMA_COLLECTION = os.getenv("CHATBOT_CHROMA_COLLECTION", "restaurant_chatbot")
