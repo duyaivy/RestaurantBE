@@ -13,7 +13,7 @@ class CatalogDocumentService:
         content = "\n".join(
             [
                 "=== DANH MUC MON AN / FOOD CATEGORY ===",
-                f"Category ID: {category.id}",
+                f"Numeric_ID: {category.id}",
                 f"Ten tieng Viet: {vi_name or 'Chua co'}",
                 f"English name: {en_name or 'N/A'}",
                 f"Mo ta tieng Viet: {vi_description or 'Chua co'}",
@@ -72,27 +72,25 @@ class CatalogDocumentService:
         price_usd = self._to_decimal(getattr(dish, "price_usd", None))
 
         status = str(getattr(dish, "status", "") or "").strip()
-        image = str(getattr(dish, "image", "") or "").strip()
+
+        # Bóc tách URL ảnh an toàn (Đặc trị cho Django ImageField)
+        image_url = self._get_image_url(dish)
 
         content = "\n".join(
             [
                 "=== THONG TIN MON AN / DISH INFORMATION ===",
-                f"Dish ID: {dish.id}",
+                f"Numeric_ID: {dish.id}",  # Đổi thành Numeric_ID để AI bắt keyword chuẩn xác
                 f"Ten tieng Viet: {vi_name or 'Chua co'}",
                 f"English name: {en_name or 'N/A'}",
                 f"Danh muc tieng Viet: {vi_category_name or 'Chua phan loai'}",
                 f"Category in English: {en_category_name or 'Uncategorized'}",
-                f"Mo ta danh muc tieng Viet: {vi_category_description or 'Chua co'}",
-                f"Category description in English: {en_category_description or 'N/A'}",
+                f"Mo ta danh muc: {vi_category_description or 'Chua co'}",
                 f"Gia VND: {self._format_vnd(price_vnd)}",
                 f"Price USD: {self._format_usd(price_usd)}",
                 f"Trang thai: {status or 'UNKNOWN'}",
-                f"Status: {status or 'UNKNOWN'}",
                 f"Mo ta tieng Viet: {vi_description or 'Chua co'}",
-                f"English description: {en_description or 'N/A'}",
-                f"Hinh anh: {image or 'Khong co'}",
-                f"Image URL: {image or 'N/A'}",
-                f"Tu khoa tim kiem: {vi_name} | {en_name} | {vi_category_name} | {en_category_name}",
+                f"Image_URL: {image_url}",  # Đổi thành Image_URL để khớp với System Prompt
+                f"Tu khoa tim kiem: {vi_name} | {en_name} | {vi_category_name}",
                 "Ngon ngu ho tro: tieng Viet, English",
             ]
         ).strip()
@@ -106,6 +104,9 @@ class CatalogDocumentService:
             "title": title or f"Dish {dish.id}",
             "language": "vi_en",
             "dish_id": int(dish.id),
+            "dish_name_vi": vi_name,
+            "dish_name_en": en_name,
+            "image_url": image_url,
             "category_id": int(category_db_id) if category_db_id is not None else -1,
             "category_name_vi": vi_category_name,
             "category_name_en": en_category_name,
@@ -119,6 +120,22 @@ class CatalogDocumentService:
             "content": content,
             "metadata": metadata,
         }
+
+    def _get_image_url(self, dish) -> str:
+        """Helper để lấy URL ảnh an toàn, hỗ trợ Django ImageField"""
+        image_obj = getattr(dish, "image", None)
+        if not image_obj:
+            return "N/A"
+        # Nếu nó đã là string (URL thuần)
+        if isinstance(image_obj, str):
+            return image_obj.strip()
+        # Nếu nó là FileField/ImageField của Django
+        if hasattr(image_obj, "url"):
+            try:
+                return image_obj.url
+            except Exception:
+                pass  # Bỏ qua lỗi nếu file không tồn tại thật
+        return str(image_obj).strip() or "N/A"
 
     def _get_i18n_text(self, value: Any, lang: str) -> str:
         if isinstance(value, dict):

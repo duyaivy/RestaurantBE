@@ -259,6 +259,7 @@ class ChatView(APIView):
             )
             answer: str = result["answer"]
             citations: list = result.get("citations", [])
+            items: list = result.get("items", [])
 
             # 6. Lưu message bot
             _save_message(
@@ -283,6 +284,7 @@ class ChatView(APIView):
                     "conversation_id": conversation.id,
                     "answer": error_text,
                     "citations": [],
+                    "items": [],
                 },
                 status=status.HTTP_200_OK,  # vẫn 200 để frontend hiển thị được
             )
@@ -292,6 +294,7 @@ class ChatView(APIView):
                 "conversation_id": conversation.id,
                 "answer": answer,
                 "citations": citations,
+                "items": items,
             },
             status=status.HTTP_200_OK,
         )
