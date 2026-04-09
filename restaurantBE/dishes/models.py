@@ -6,6 +6,7 @@ from django.db import models
 class Dish(models.Model):
     name = models.JSONField(null=False)
     price = models.DecimalField(max_digits=10, decimal_places=2, null=False)
+    price_usd = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     description = models.JSONField(null=False)
     image = models.CharField(max_length=255, null=False)
     status = models.CharField(
@@ -32,6 +33,7 @@ class Dish(models.Model):
 class DishSnapshot(models.Model):
     name = models.JSONField(null=False)
     price = models.DecimalField(max_digits=10, decimal_places=2, null=False)
+    price_usd = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     description = models.JSONField(null=False)
     image = models.CharField(max_length=255, null=False)
     dish_id = models.ForeignKey(Dish, on_delete=models.SET_NULL, null=True)
