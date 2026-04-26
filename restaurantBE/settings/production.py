@@ -2,6 +2,7 @@
 Setting for production deployment
 """
 
+import os
 from .common import *
 from urllib.parse import urlparse, parse_qsl
 
