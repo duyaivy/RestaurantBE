@@ -11,6 +11,7 @@ import logging
 from django.utils.translation import gettext as _
 from restaurantBE.dishes.models import Dish
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
 
@@ -38,8 +39,14 @@ class CategoryRetrieveListAPIView(ListCreateAPIView):
 
     def list(self, request, *args, **kwargs):
         """Get all categories"""
+        cache_key = "category_list_all"
+        cached_data = cache.get(cache_key)
+        if cached_data:
+            return apiSuccess(cached_data, msg=_("get_all_categories_success"))
+
         data = self.get_queryset().all()
         serializer = self.get_serializer(data, many=True)
+        cache.set(cache_key, serializer.data, timeout=3600)
         return apiSuccess(serializer.data, msg=_("get_all_categories_success"))
 
     def post(self, request, *args, **kwargs):
@@ -88,6 +95,12 @@ class CategoryRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         """Get category by id"""
+        category_id = kwargs.get("id")
+        cache_key = f"category_detail_{category_id}"
+        cached_data = cache.get(cache_key)
+        if cached_data:
+            return apiSuccess(cached_data, msg=_("get_category_success"))
+
         try:
             instance = self.get_object()
         except Http404:
@@ -99,6 +112,7 @@ class CategoryRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
             category_id=instance.id, status=DishStatus.AVAILABLE
         ).values()
         res = {**serializer.data, "dishes": dishData}
+        cache.set(cache_key, res, timeout=3600)
         return apiSuccess(
             res,
             msg=_("get_category_success"),
