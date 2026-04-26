@@ -8,6 +8,7 @@
 
 - [Python](https://www.python.org/) v3.10+
 - [PostgreSQL](https://www.postgresql.org/)
+- [Redis](https://redis.io/)
 
 ## Setup local development
 
