@@ -19,17 +19,18 @@ HOST = os.getenv("HOST", "http://localhost:8000/")
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-tmpPostgres = urlparse(os.getenv("DATABASE_URL"))
+database_url = os.getenv("DATABASE_URL") or ""
+tmpPostgres = urlparse(database_url)
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": tmpPostgres.path.replace("/", ""),
+        "NAME": tmpPostgres.path.replace("/", "") if tmpPostgres.path else "",
         "USER": tmpPostgres.username,
         "PASSWORD": tmpPostgres.password,
         "HOST": tmpPostgres.hostname,
         "PORT": 5432,
-        "OPTIONS": dict(parse_qsl(tmpPostgres.query)),
+        "OPTIONS": dict(parse_qsl(tmpPostgres.query)) if tmpPostgres.query else {},
     }
 }
 
@@ -43,8 +44,14 @@ else:
         origin.strip() for origin in _cors_origins.split(",") if origin.strip()
     ]
 
+_valid_levels = {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+if LOG_LEVEL not in _valid_levels:
+    LOG_LEVEL = "INFO"
+
 DB_LOG_LEVEL = os.getenv("DJANGO_DB_LOG_LEVEL", "WARNING").upper()
+if DB_LOG_LEVEL not in _valid_levels:
+    DB_LOG_LEVEL = "WARNING"
 
 # Logging
 LOGGING = {

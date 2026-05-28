@@ -22,17 +22,18 @@ HOST = os.getenv("HOST", "http://localhost:8000/")
 
 
 # Replace the DATABASES section of your settings.py with this
-tmpPostgres = urlparse(os.getenv("DATABASE_URL"))
+database_url = os.getenv("DATABASE_URL") or ""
+tmpPostgres = urlparse(database_url)
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": tmpPostgres.path.replace("/", ""),
+        "NAME": tmpPostgres.path.replace("/", "") if tmpPostgres.path else "",
         "USER": tmpPostgres.username,
         "PASSWORD": tmpPostgres.password,
         "HOST": tmpPostgres.hostname,
         "PORT": 5432,
-        "OPTIONS": dict(parse_qsl(tmpPostgres.query)),
+        "OPTIONS": dict(parse_qsl(tmpPostgres.query)) if tmpPostgres.query else {},
     }
 }
 

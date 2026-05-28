@@ -10,19 +10,125 @@ from django.core.exceptions import ImproperlyConfigured
 
 logger = logging.getLogger(__name__)
 
+from pydantic import BaseModel, Field
+
+class ChatbotResponse(BaseModel):
+    answer: str = Field(
+        description="The natural language answer to the user's question, based on the provided context. Answer in Vietnamese if the question/conversation is in Vietnamese."
+    )
+    suggest_items: bool = Field(
+        description="True if the user's query or conversational intent is asking for food/drink suggestions, prices, menu, or recommendations. False if it is a general/informational FAQ query (like WiFi password, restaurant location, opening hours, policies, reservation general info)."
+    )
+
 SYSTEM_PROMPT = (
     "You are VietFood assistant for a restaurant in Da Nang. "
     "Answer in Vietnamese when the user writes Vietnamese. "
-    "Use only the provided CONTEXT. "
-    "IMPORTANT: If you suggest dishes, you MUST extract the exact Numeric ID and Image URL "
-    "provided in the context. Do not translate or invent IDs. "
-    "Format each dish at the end: [ITEM: Name | Numeric_ID | Image_URL]. "
-    "Example: [ITEM: Bún bò Huế | 101 | https://restaurant.com/anh.jpg]"
+    "Answer naturally and concisely based strictly on the provided CONTEXT."
 )
 
 
+import json
+
+def repair_and_parse_json(text: str) -> Optional[dict]:
+    text = text.strip()
+    if not text.startswith("{"):
+        return None
+    try:
+        parsed = json.loads(text)
+        if isinstance(parsed, dict):
+            return parsed
+    except Exception:
+        pass
+
+    for suffix in ('"}', '"', '}', '"}', '", "suggest_items": false}', '", "suggest_items": true}'):
+        try:
+            parsed = json.loads(text + suffix)
+            if isinstance(parsed, dict):
+                return parsed
+        except Exception:
+            continue
+    return None
+
+def extract_answer_via_regex(text: str) -> Optional[str]:
+    match = re.search(r'"answer"\s*:\s*"(.*)', text)
+    if not match:
+        match = re.search(r'\\"?answer\\"?\s*:\s*\\"(.*)', text)
+    
+    if match:
+        rest = match.group(1)
+        escaped = False
+        chars = []
+        for char in rest:
+            if escaped:
+                chars.append(char)
+                escaped = False
+            elif char == '\\':
+                escaped = True
+            elif char == '"':
+                break
+            else:
+                chars.append(char)
+        return "".join(chars)
+    return None
+
+def unwrap_nested_json(val: Any) -> str:
+    if isinstance(val, str):
+        val_stripped = val.strip()
+        if val_stripped.startswith("{"):
+            parsed = repair_and_parse_json(val_stripped)
+            if parsed and isinstance(parsed, dict) and "answer" in parsed:
+                return unwrap_nested_json(parsed["answer"])
+            
+            regex_ans = extract_answer_via_regex(val_stripped)
+            if regex_ans is not None:
+                return unwrap_nested_json(regex_ans)
+    return val
+
+def clean_and_parse_llm_response(raw_content: str) -> Dict[str, Any]:
+    raw_content = raw_content.strip()
+    if not raw_content:
+        return {"answer": "", "suggest_items": False}
+
+    # 1. Strip markdown code blocks if present
+    if raw_content.startswith("```"):
+        lines = raw_content.splitlines()
+        if lines[0].startswith("```"):
+            lines = lines[1:]
+        if lines and lines[-1].startswith("```"):
+            lines = lines[:-1]
+        raw_content = "\n".join(lines).strip()
+
+    # 2. Try direct/repaired JSON parsing
+    parsed = repair_and_parse_json(raw_content)
+    if parsed and isinstance(parsed, dict):
+        answer = parsed.get("answer", "")
+        suggest_items = parsed.get("suggest_items", False)
+        answer = unwrap_nested_json(answer)
+        if isinstance(suggest_items, str):
+            suggest_items = suggest_items.lower() in {"1", "true", "yes", "on"}
+        return {"answer": str(answer), "suggest_items": bool(suggest_items)}
+
+    # 3. Fallback to regex extraction
+    answer = ""
+    suggest_items = False
+
+    suggest_items_match = re.search(r'"suggest_items"\s*:\s*(true|false|1|0)', raw_content, re.IGNORECASE)
+    if suggest_items_match:
+        suggest_items = suggest_items_match.group(1).lower() in {"true", "1"}
+
+    regex_ans = extract_answer_via_regex(raw_content)
+    if regex_ans is not None:
+        answer = regex_ans
+    else:
+        answer = raw_content
+
+    answer = unwrap_nested_json(answer)
+
+    return {"answer": str(answer), "suggest_items": bool(suggest_items)}
+
+
 class LLMService:
-    """Wrapper around OpenAI chat completion for RAG answer generation with item extraction."""
+    """Wrapper around Google GenAI for RAG answer generation."""
 
     def __init__(
         self,
@@ -34,101 +140,140 @@ class LLMService:
     ) -> None:
         self.api_key = (
             api_key
-            or getattr(settings, "OPENROUTER_API_KEY", None)
-            or os.getenv("OPENROUTER_API_KEY")
-            or getattr(settings, "OPENAI_API_KEY", None)
-            or os.getenv("OPENAI_API_KEY")
+            or getattr(settings, "GEMINI_API_KEY", None)
+            or os.getenv("GEMINI_API_KEY")
         )
         if not self.api_key:
             raise ImproperlyConfigured("Missing API Key for chatbot LLM service.")
-
-        self.base_url = (
-            base_url
-            or getattr(settings, "CHATBOT_LLM_BASE_URL", None)
-            or os.getenv("CHATBOT_LLM_BASE_URL")
-            or "https://integrate.api.nvidia.com/v1"  # Mặc định dùng NVIDIA
-        )
 
         self.model = (
             model
             or getattr(settings, "CHATBOT_LLM_MODEL", None)
             or os.getenv("CHATBOT_LLM_MODEL")
-            or "nvidia/nemotron-3-super-120b-a12b"
+            or "gemini-2.5-flash"
         )
 
         # Cấu hình Temperature
         conf_temp = getattr(settings, "CHATBOT_LLM_TEMPERATURE", 0.2)
         self.temperature = temperature if temperature is not None else float(conf_temp)
 
-        # Cấu hình Reasoning
+        # Cấu hình Max Tokens
+        conf_max_tokens = getattr(settings, "CHATBOT_LLM_MAX_TOKENS", 300)
+        self.max_tokens = int(conf_max_tokens)
+
+        # Cấu hình Reasoning (kept for backward compatibility, not used by genai client directly)
         conf_reasoning = getattr(settings, "CHATBOT_LLM_REASONING_ENABLED", False)
         self.reasoning_enabled = (
             reasoning_enabled if reasoning_enabled is not None else bool(conf_reasoning)
         )
 
         try:
-            from openai import OpenAI
+            from google import genai
         except ImportError as exc:
-            raise ImproperlyConfigured("Please install openai package.") from exc
+            raise ImproperlyConfigured("Please install google-genai package.") from exc
 
-        self._client = OpenAI(api_key=self.api_key, base_url=self.base_url)
+        self._client = genai.Client(api_key=self.api_key)
+        logger.info(
+            "LLM service initialized with model='%s'.",
+            self.model,
+        )
 
     def generate(
         self,
         user_message: str,
         context_text: str,
         history: Optional[List[dict]] = None,
-        max_tokens: int = 800,
+        max_tokens: Optional[int] = None,
     ) -> Dict[str, Any]:
-        """Giải quả kết quả kèm theo danh sách món ăn đã trích xuất."""
-        messages: List[dict] = [{"role": "system", "content": SYSTEM_PROMPT}]
+        """Giải quyết câu trả lời."""
+        from google.genai import types
+
+        contents = []
 
         if history:
             for item in history[-12:]:
                 role = str(item.get("role") or "").lower()
                 content = str(item.get("content") or "").strip()
-                if role in {"user", "assistant"} and content:
-                    messages.append({"role": role, "content": content})
+                if role == "assistant":
+                    role = "model"
+                if role in {"user", "model"} and content:
+                    contents.append(
+                        types.Content(
+                            role=role,
+                            parts=[types.Part.from_text(text=content)]
+                        )
+                    )
 
         prompt = self._build_user_prompt(user_message, context_text)
-        messages.append({"role": "user", "content": prompt})
-
-        request_kwargs = {
-            "model": self.model,
-            "messages": messages,
-            "temperature": self.temperature,
-            "max_tokens": max_tokens,
-        }
-
-        if self.reasoning_enabled:
-            request_kwargs["extra_body"] = {"reasoning": {"enabled": True}}
-
-        response = self._client.chat.completions.create(**request_kwargs)
-        raw_content = (
-            response.choices[0].message.content.strip() if response.choices else ""
+        contents.append(
+            types.Content(
+                role="user",
+                parts=[types.Part.from_text(text=prompt)]
+            )
         )
 
-        # Bóc tách dữ liệu ITEM
-        final_answer, suggested_items = self._parse_items(raw_content)
+        limit_tokens = max_tokens if max_tokens is not None else self.max_tokens
 
-        return {"answer": final_answer, "items": suggested_items}
-
-    @staticmethod
-    def _parse_items(content: str) -> tuple[str, List[dict]]:
-        """Bóc tách [ITEM: Name | ID | Image] từ chuỗi văn bản."""
-        # Tìm pattern: [ITEM: Tên | ID | Link Ảnh]
-        pattern = r"\[ITEM:\s*(.*?)\s*\|\s*(.*?)\s*\|\s*(.*?)\]"
-        matches = re.findall(pattern, content)
-
-        items = []
-        for m in matches:
-            items.append(
-                {"name": m[0].strip(), "id": m[1].strip(), "image_url": m[2].strip()}
+        try:
+            config = types.GenerateContentConfig(
+                system_instruction=SYSTEM_PROMPT,
+                temperature=self.temperature,
+                max_output_tokens=limit_tokens,
+                response_mime_type="application/json",
+                response_schema=ChatbotResponse,
             )
 
-        # Xóa các tag ITEM khỏi nội dung trả về để user không thấy chữ thô
-        clean_text = re.sub(r"\[ITEM:.*?\]", "", content).strip()
-        return clean_text, items
+            def _call():
+                return self._client.models.generate_content(
+                    model=self.model,
+                    contents=contents,
+                    config=config,
+                )
+
+            import time
+            delay = 2.0
+            for attempt in range(5):
+                try:
+                    response = _call()
+                    break
+                except Exception as exc:
+                    exc_str = str(exc)
+                    is_transient = any(
+                        err in exc_str
+                        for err in [
+                            "429",
+                            "503",
+                            "500",
+                            "502",
+                            "504",
+                            "RESOURCE_EXHAUSTED",
+                            "UNAVAILABLE",
+                            "DEADLINE_EXCEEDED",
+                        ]
+                    )
+                    if is_transient:
+                        logger.warning(
+                            "LLM generation transient error (%s). Retrying in %.2f seconds (attempt %d/5)...",
+                            exc_str,
+                            delay,
+                            attempt + 1,
+                        )
+                        time.sleep(delay)
+                        delay *= 2.0
+                    else:
+                        raise
+            else:
+                response = _call()
+
+            raw_content = response.text.strip() if response.text else ""
+            parsed = clean_and_parse_llm_response(raw_content)
+            answer = parsed["answer"]
+            suggest_items = parsed["suggest_items"]
+        except Exception as exc:
+            logger.error("LLM generation failed: %s", exc)
+            raise RuntimeError(f"LLM request failed: {exc}") from exc
+
+        return {"answer": answer, "suggest_items": suggest_items}
 
     @staticmethod
     def _build_user_prompt(user_message: str, context_text: str) -> str:

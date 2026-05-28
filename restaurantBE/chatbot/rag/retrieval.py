@@ -30,6 +30,7 @@ class RetrievalService:
         top_k: int = 5,
         where: Optional[Dict[str, Any]] = None,
         max_distance: Optional[float] = None,
+        query_embedding: Optional[List[float]] = None,
     ) -> List[Dict[str, Any]]:
         """
         Tìm kiếm thuần — trả về list raw results từ vector DB.
@@ -39,7 +40,8 @@ class RetrievalService:
         if not query:
             return []
         self._ensure_vector_index_ready()
-        query_embedding = self.embedding.embed_text(query)
+        if query_embedding is None:
+            query_embedding = self.embedding.embed_text(query)
         results = self.vector_db.query(
             query_embedding=query_embedding,
             top_k=top_k,
@@ -91,6 +93,7 @@ class RetrievalService:
         top_k: int = 5,
         where: Optional[Dict[str, Any]] = None,
         max_distance: Optional[float] = 1.2,
+        query_embedding: Optional[List[float]] = None,
     ) -> Dict[str, Any]:
         """
         Tìm kiếm + build context string cho LLM.
@@ -120,6 +123,7 @@ class RetrievalService:
             top_k=top_k,
             where=where,
             max_distance=max_distance,
+            query_embedding=query_embedding,
         )
         context_parts: List[str] = []
         citations: List[Dict[str, Any]] = []
