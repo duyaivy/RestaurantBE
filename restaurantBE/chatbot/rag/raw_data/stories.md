@@ -229,12 +229,145 @@
 - **answer_style:** Structured and diplomatic. Explain why each dish covers a different need.
 - **retrieval_tags:** mixed_group, balanced_order, varied_preferences
 
+## S021 — Tourist wants Wi-Fi to translate the menu
+
+- **persona:** Foreign visitor using a phone to read maps, translate dish names, and message friends
+- **situation:** The guest asks for Wi-Fi before or during ordering and may need help understanding Vietnamese dish names.
+- **sample_queries_en:** Do you have Wi-Fi? | Can I get the Wi-Fi password? | I need internet to translate the menu.
+- **sample_queries_vi:** Quán có Wi-Fi không? | Cho mình xin mật khẩu Wi-Fi. | Mình cần mạng để dịch menu.
+- **recommended_items:** Fresh Spring Rolls, Beef Pho (Phở bò), Orange Juice (Nước cam), Water (Nước lọc)
+- **why_this_works:** These choices are easy for foreign visitors to understand while they use Wi-Fi or translation apps to explore the rest of the menu.
+- **answer_style:** Helpful and service-oriented. Give the Wi-Fi answer first, then gently suggest beginner-friendly dishes if the guest is still choosing.
+- **retrieval_tags:** wifi, tourist, translation, english_support, beginner_friendly
+
+## S022 — Guest asks for the restroom during a meal
+
+- **persona:** Dine-in guest needing a quick facility answer
+- **situation:** The guest is already at the restaurant and asks where the restroom or toilet is.
+- **sample_queries_en:** Where is the restroom? | Do you have a bathroom? | Is there a toilet inside?
+- **sample_queries_vi:** Nhà vệ sinh ở đâu? | Quán có toilet không? | Cho mình hỏi WC ở đâu?
+- **recommended_items:** Water (Nước lọc), Fresh Spring Rolls
+- **why_this_works:** This is a service-intent story rather than a menu story, so the assistant should answer directly and not over-recommend food.
+- **answer_style:** Direct, polite, and brief. Avoid long menu suggestions unless the guest also asks what to order.
+- **retrieval_tags:** restroom, toilet, bathroom, facility, dine_in_support
+
+## S023 — Guest arrives by motorbike or car and asks about parking
+
+- **persona:** Local diner, tourist renting a scooter, or family arriving by taxi/car
+- **situation:** The guest wants to know where to park and whether car parking is easy near the restaurant.
+- **sample_queries_en:** Is there parking? | Can I park a motorbike here? | Where should our car stop?
+- **sample_queries_vi:** Quán có bãi xe không? | Gửi xe máy ở đâu? | Đi ô tô thì đỗ ở đâu?
+- **recommended_items:** Hoi An Chicken Rice (Cơm gà Hội An), Quang Noodle (Mì Quảng), Orange Juice (Nước cam)
+- **why_this_works:** Parking questions often happen before arrival, so the answer should reduce friction and then suggest easy first-order dishes if the guest is planning a visit.
+- **answer_style:** Practical and arrival-focused. Mention motorbike support clearly and avoid guaranteeing car parking during peak hours.
+- **retrieval_tags:** parking, motorbike, car_parking, arrival, directions
+
+## S024 — Student wants a light meal with Wi-Fi and a charging outlet
+
+- **persona:** Student or solo guest with low phone battery
+- **situation:** The guest wants a simple meal, light internet use, and possibly a safe place to charge a phone.
+- **sample_queries_en:** Can I sit here and charge my phone? | I need Wi-Fi and a quick meal. | Is this okay for a short study break?
+- **sample_queries_vi:** Có sạc điện thoại được không? | Mình cần Wi-Fi với ăn nhanh. | Ngồi học một lát được không?
+- **recommended_items:** Vietnamese Baguette Sandwich (Bánh mì), Beef Pho (Phở bò), Water (Nước lọc), Orange Juice (Nước cam)
+- **why_this_works:** Banh mi, pho, and simple drinks fit a short solo stop without turning the restaurant into a coworking space.
+- **answer_style:** Friendly but boundary-aware. Allow short charging when possible, but clarify that VietFood is primarily a restaurant.
+- **retrieval_tags:** wifi, charging, student, solo, quick_meal, outlet
+
+## S025 — Family asks for comfortable seating with children
+
+- **persona:** Parents with children or older relatives
+- **situation:** The table wants easy seating, mild food, and a calm dining experience.
+- **sample_queries_en:** Is this place okay for kids? | Can we get a comfortable table for my family? | What should children eat here?
+- **sample_queries_vi:** Quán có hợp cho trẻ em không? | Có bàn rộng cho gia đình không? | Trẻ em nên ăn món gì?
+- **recommended_items:** Hoi An Chicken Rice (Cơm gà Hội An), Yangzhou Fried Rice (Cơm chiên Dương Châu), Beef Pho (Phở bò), Water (Nước lọc), Orange Juice (Nước cam)
+- **why_this_works:** Mild rice and noodle dishes are easy to portion and safer for children or older guests who do not want strong spice.
+- **answer_style:** Calm, practical, and family-first. Recommend mild dishes and mention seating support when available.
+- **retrieval_tags:** family, kids, children, older_guests, mild_food, seating
+
+## S026 — Guest needs wheelchair or stroller-friendly seating
+
+- **persona:** Guest with mobility needs, stroller, or a companion who needs easier access
+- **situation:** The guest wants to know whether the restaurant can arrange a table that is easier to reach.
+- **sample_queries_en:** Is the restaurant wheelchair friendly? | Can I bring a stroller? | Do you have accessible seating?
+- **sample_queries_vi:** Quán có phù hợp xe lăn không? | Mang xe đẩy em bé vào được không? | Có bàn dễ di chuyển không?
+- **recommended_items:** Fresh Spring Rolls, Hoi An Chicken Rice (Cơm gà Hội An), Water (Nước lọc)
+- **why_this_works:** The food suggestions stay simple because the main user need is access and comfort, not adventurous ordering.
+- **answer_style:** Careful and honest. Offer to arrange easier seating when possible, but do not overpromise during peak hours.
+- **retrieval_tags:** accessibility, wheelchair, stroller, accessible_seating, mobility_support
+
+## S027 — Guest wants a quiet table for a gentle dinner
+
+- **persona:** Couple, older guests, or a small group wanting a calmer table
+- **situation:** The guest asks whether they can sit somewhere quieter, away from larger groups or the entrance.
+- **sample_queries_en:** Can we have a quiet table? | We want somewhere calm for dinner. | Is there a less noisy area?
+- **sample_queries_vi:** Có bàn nào yên tĩnh hơn không? | Tụi mình muốn ngồi chỗ nhẹ nhàng. | Có khu nào ít ồn không?
+- **recommended_items:** Fresh Spring Rolls, Steamed Shrimp with Lemongrass (Tôm hấp sả), Tofu with Scallion Oil (Đậu tẩm hành), Orange Juice (Nước cam)
+- **why_this_works:** Lighter dishes and a calm seating request fit a gentle dinner mood better than a full grilled or hotpot spread.
+- **answer_style:** Soft and realistic. Say the restaurant can try to arrange it, but avoid guaranteeing silence at dinner rush.
+- **retrieval_tags:** quiet_table, calm, date_night, gentle_dinner, seating_preference
+
+## S028 — Small birthday or casual celebration group
+
+- **persona:** Group of friends or family planning a small celebration
+- **situation:** They want food that is shareable and suitable for a birthday meal without complicated event setup.
+- **sample_queries_en:** Can we celebrate a birthday here? | What should we order for a small party? | Do you take group bookings?
+- **sample_queries_vi:** Quán có nhận sinh nhật không? | Nhóm mình nên gọi món gì? | Có đặt bàn nhóm được không?
+- **recommended_items:** Chicken Hotpot with Basil (Lẩu gà lá é), BBQ Grilled Pork Ribs, Tamarind Fried Crab (Cua rang me), Stir-Fried Morning Glory with Garlic (Rau muống xào tỏi), Orange Juice (Nước cam)
+- **why_this_works:** Hotpot, grilled ribs, crab, and vegetables create a shareable table that feels celebratory without needing a formal party menu.
+- **answer_style:** Warm and organized. Encourage reservation for groups and mention that large decorations should be confirmed with staff.
+- **retrieval_tags:** birthday, group_booking, celebration, sharing_table, family_event
+
+## S029 — Traveler comes with luggage before check-in or after checkout
+
+- **persona:** Tourist moving between hotel, airport, station, or sightseeing plans
+- **situation:** The guest has a backpack or suitcase and wants a practical meal without blocking the restaurant space.
+- **sample_queries_en:** Can I bring my suitcase? | I have luggage, is that okay? | What should I eat before going to the airport?
+- **sample_queries_vi:** Mang vali vào quán được không? | Mình có hành lý thì ngồi được không? | Ăn gì nhanh trước khi ra sân bay?
+- **recommended_items:** Vietnamese Baguette Sandwich (Bánh mì), Beef Pho (Phở bò), Hoi An Chicken Rice (Cơm gà Hội An), Orange Juice (Nước cam)
+- **why_this_works:** These items are familiar, quick, and easy for a traveler who needs a meal without a long shared-table experience.
+- **answer_style:** Practical and tourist-friendly. Mention small luggage is okay if it does not block walkways, and remind guests to keep valuables with them.
+- **retrieval_tags:** luggage, suitcase, tourist, airport, quick_meal, travel_stop
+
+## S030 — Guest asks about pet-friendly seating
+
+- **persona:** Guest walking with a small pet and looking for casual seating
+- **situation:** The guest wants to know if a pet can join, usually before arriving or while choosing outdoor/front seating.
+- **sample_queries_en:** Can I bring my dog? | Are pets allowed? | Is there outdoor seating for pets?
+- **sample_queries_vi:** Mang chó vào được không? | Quán có cho thú cưng vào không? | Có chỗ ngồi ngoài cho thú cưng không?
+- **recommended_items:** Fresh Spring Rolls, Orange Juice (Nước cam), Water (Nước lọc)
+- **why_this_works:** The recommendation stays light because the main decision is seating suitability and guest comfort.
+- **answer_style:** Friendly but policy-aware. Allow only suitable outdoor/front seating when available, and remind guests to keep pets calm and leashed.
+- **retrieval_tags:** pets, pet_friendly, outdoor_seating, dog, cat, policy
+
+## S031 — Guest is in a hurry and wants the fastest practical order
+
+- **persona:** Office worker, traveler, or student with limited time
+- **situation:** The guest asks for quick food, takeaway, or a low-waiting-time choice.
+- **sample_queries_en:** I am in a hurry. What is fastest? | What can I take away quickly? | I only have 15 minutes.
+- **sample_queries_vi:** Mình đang vội thì ăn gì nhanh? | Món nào mang đi nhanh? | Mình chỉ có 15 phút.
+- **recommended_items:** Vietnamese Baguette Sandwich (Bánh mì), Beef Pho (Phở bò), Fried Spring Roll, Water (Nước lọc), Pepsi (Pepsi)
+- **why_this_works:** Banh mi, pho, fried spring rolls, and simple drinks are easier to recommend for a quick order than grilled seafood or hotpot.
+- **answer_style:** Fast and direct. Prioritize short prep time and clearly warn that grilled dishes, seafood, and hotpot may take longer.
+- **retrieval_tags:** quick_meal, takeaway, low_wait, hurry, fast_service
+
+## S032 — Guest wants a clean, comfortable, non-smoking meal
+
+- **persona:** Family, cautious traveler, or guest sensitive to smoke and crowded spaces
+- **situation:** The guest asks about smoke, restroom comfort, and whether the main dining area is family-friendly.
+- **sample_queries_en:** Is the dining room non-smoking? | Is this place comfortable for families? | Do you have a clean restroom?
+- **sample_queries_vi:** Khu ăn có cấm hút thuốc không? | Quán có thoải mái cho gia đình không? | Nhà vệ sinh có sạch không?
+- **recommended_items:** Hoi An Chicken Rice (Cơm gà Hội An), Fresh Spring Rolls, Water (Nước lọc), Orange Juice (Nước cam)
+- **why_this_works:** Mild, clean-feeling dishes support the comfort-focused answer and avoid pushing bold or messy orders.
+- **answer_style:** Reassuring and respectful. Mention the main indoor dining area is kept family-friendly and direct guests to staff for facility help.
+- **retrieval_tags:** non_smoking, family_comfort, restroom, clean, cautious_guest
+
 ## Optional system behavior hints
 
 - When a foreign guest seems unsure, recommend one starter, one main dish, and one drink rather than listing too many items.
 - When a query is broad, prefer Central Vietnam identity dishes first: Quang Noodle, Hoi An Chicken Rice, Hue Beef Noodle Soup, Chicken Hotpot with Basil.
 - When a query is budget-sensitive, mention prices clearly in VND and optionally add approximate USD.
 - When a guest asks about allergies, do not overpromise. Suggest confirming directly with staff.
+- When the request is about facilities such as Wi-Fi, restrooms, parking, charging, pets, or accessibility, answer the service need first before recommending food.
 - When the request is emotional or story-based, mention the family-rooted origin of VietFood and founder Nguyễn Quốc Duy.
 
 ## Exact available menu references

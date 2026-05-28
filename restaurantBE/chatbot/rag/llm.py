@@ -12,19 +12,52 @@ logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
 
-class ChatbotResponse(BaseModel):
+class EnglishChatbotResponse(BaseModel):
     answer: str = Field(
-        description="The natural language answer to the user's question, based on the provided context. Answer in Vietnamese if the question/conversation is in Vietnamese."
+        description=(
+            "The natural language answer to the user's question, based on the provided context. "
+            "You MUST respond in English. "
+            "You MUST format all prices and currency in English/US style "
+            "(e.g., '30,000 VND', '200,000 dong', '$1.20', '$8.00') using a comma as the thousands separator and dot "
+            "as the decimal separator. Never use Vietnamese currency terms like 'đồng' or 'VNĐ' with dot separators (e.g., '30.000') in English replies."
+        )
     )
     suggest_items: bool = Field(
         description="True if the user's query or conversational intent is asking for food/drink suggestions, prices, menu, or recommendations. False if it is a general/informational FAQ query (like WiFi password, restaurant location, opening hours, policies, reservation general info)."
     )
 
-SYSTEM_PROMPT = (
+class VietnameseChatbotResponse(BaseModel):
+    answer: str = Field(
+        description=(
+            "The natural language answer to the user's question, based on the provided context. "
+            "You MUST respond in Vietnamese. "
+            "You MUST format all prices and currency in Vietnamese style "
+            "(e.g., '30.000 đồng', '30.000 VNĐ', '30.000đ') using a dot as the thousands separator and comma as the "
+            "decimal separator. Never use English separators like comma for thousands (e.g., '30,000 VND') in Vietnamese replies."
+        )
+    )
+    suggest_items: bool = Field(
+        description="True if the user's query or conversational intent is asking for food/drink suggestions, prices, menu, or recommendations. False if it is a general/informational FAQ query (like WiFi password, restaurant location, opening hours, policies, reservation general info)."
+    )
+
+# Retained for backward compatibility
+ChatbotResponse = VietnameseChatbotResponse
+
+SYSTEM_PROMPT_EN = (
     "You are VietFood assistant for a restaurant in Da Nang. "
-    "Answer in Vietnamese when the user writes Vietnamese. "
+    "You MUST respond in English. "
+    "You MUST format all prices and monetary values in English/US style (e.g., '$1.20', '$8.00', '30,000 VND', '200,000 dong') with a comma as the thousands separator and dot as the decimal separator. Do not use Vietnamese terms like 'đồng' or 'VNĐ' with dot separators (e.g. do not write '30.000 đồng') in English replies. "
     "Answer naturally and concisely based strictly on the provided CONTEXT."
 )
+
+SYSTEM_PROMPT_VI = (
+    "You are VietFood assistant for a restaurant in Da Nang. "
+    "You MUST respond in Vietnamese. "
+    "You MUST format all prices and monetary values in Vietnamese style (e.g., '30.000 đồng', '30.000 VNĐ', or '30.000đ') with a dot as the thousands separator and comma as the decimal separator. Do not use English separators like comma for thousands (e.g. do not write '30,000 VND') in Vietnamese replies. "
+    "Answer naturally and concisely based strictly on the provided CONTEXT."
+)
+
+SYSTEM_PROMPT = SYSTEM_PROMPT_VI
 
 
 import json
@@ -184,6 +217,7 @@ class LLMService:
         context_text: str,
         history: Optional[List[dict]] = None,
         max_tokens: Optional[int] = None,
+        lang: str = "vi",
     ) -> Dict[str, Any]:
         """Giải quyết câu trả lời."""
         from google.genai import types
@@ -214,13 +248,16 @@ class LLMService:
 
         limit_tokens = max_tokens if max_tokens is not None else self.max_tokens
 
+        system_instruction = SYSTEM_PROMPT_EN if lang == "en" else SYSTEM_PROMPT_VI
+        response_schema = EnglishChatbotResponse if lang == "en" else VietnameseChatbotResponse
+
         try:
             config = types.GenerateContentConfig(
-                system_instruction=SYSTEM_PROMPT,
+                system_instruction=system_instruction,
                 temperature=self.temperature,
                 max_output_tokens=limit_tokens,
                 response_mime_type="application/json",
-                response_schema=ChatbotResponse,
+                response_schema=response_schema,
             )
 
             def _call():

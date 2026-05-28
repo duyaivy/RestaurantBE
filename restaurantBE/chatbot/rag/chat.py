@@ -32,6 +32,7 @@ class ChatService:
         history: Optional[List[Dict[str, Any]]] = None,
         top_k: int = 5,
         max_distance: float = 1.2,
+        lang: str = "vi",
     ) -> Dict[str, Any]:
         """
         Xử lý 1 lượt chat.
@@ -42,6 +43,7 @@ class ChatService:
                            [{"role": "user"|"assistant", "content": "..."}]
             top_k        : số chunk lấy từ vector DB
             max_distance : ngưỡng cosine distance để lọc kết quả không liên quan
+            lang         : ngôn ngữ mong muốn ("vi" hoặc "en")
 
         Returns:
             {
@@ -71,6 +73,7 @@ class ChatService:
             user_message=clean_message,
             context_text=rag_data["context_text"],
             history=history or [],
+            lang=lang,
         )
 
         answer = (
