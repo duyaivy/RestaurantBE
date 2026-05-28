@@ -32,6 +32,7 @@ class ChatService:
         history: Optional[List[Dict[str, Any]]] = None,
         top_k: int = 5,
         max_distance: float = 1.2,
+        lang: str = "vi",
     ) -> Dict[str, Any]:
         """
         Xử lý 1 lượt chat.
@@ -42,6 +43,7 @@ class ChatService:
                            [{"role": "user"|"assistant", "content": "..."}]
             top_k        : số chunk lấy từ vector DB
             max_distance : ngưỡng cosine distance để lọc kết quả không liên quan
+            lang         : ngôn ngữ mong muốn ("vi" hoặc "en")
 
         Returns:
             {
@@ -57,16 +59,21 @@ class ChatService:
                 "items": [],
             }
 
+        # Calculate the query embedding exactly once at the beginning
+        query_embedding = self.retrieval_service.embedding.embed_text(clean_message)
+
         rag_data = self.retrieval_service.build_context(
             query=clean_message,
             top_k=top_k,
             max_distance=max_distance,
+            query_embedding=query_embedding,
         )
 
         llm_result = self.llm_service.generate(
             user_message=clean_message,
             context_text=rag_data["context_text"],
             history=history or [],
+            lang=lang,
         )
 
         answer = (
@@ -74,20 +81,26 @@ class ChatService:
             if isinstance(llm_result, dict)
             else str(llm_result)
         )
-        retrieved_items = self._extract_items_from_results(rag_data.get("results", []))
 
-        # Nếu top results là FAQ/markdown, chạy thêm 1 lượt retrieve riêng cho món ăn.
-        if not retrieved_items:
-            dish_results = self.retrieval_service.search(
-                query=clean_message,
-                top_k=max(top_k, 8),
-                where={"source_type": "DISH"},
-                max_distance=None,
-            )
-            retrieved_items = self._extract_items_from_results(dish_results)
+        suggest_items = False
+        if isinstance(llm_result, dict):
+            suggest_items = llm_result.get("suggest_items", False)
 
-        # Không dùng fallback từ LLM để tránh id/image_url bị bịa.
-        items = retrieved_items
+        items = []
+        if suggest_items:
+            retrieved_items = self._extract_items_from_results(rag_data.get("results", []))
+
+            # Nếu top results là FAQ/markdown, chạy thêm 1 lượt retrieve riêng cho món ăn.
+            if not retrieved_items:
+                dish_results = self.retrieval_service.search(
+                    query=clean_message,
+                    top_k=max(top_k, 8),
+                    where={"source_type": "DISH"},
+                    max_distance=None,
+                    query_embedding=query_embedding,
+                )
+                retrieved_items = self._extract_items_from_results(dish_results)
+            items = retrieved_items
 
         return {
             "answer": answer,

@@ -251,11 +251,17 @@ class ChatView(APIView):
         ]
 
         # 5. Gọi RAG + LLM
+        lang = request.query_params.get("lang") or request.data.get("lang") or "vi"
+        lang = str(lang).strip().lower()
+        if lang not in ["en", "vi"]:
+            lang = "vi"
+
         try:
             chat_service = self._get_chat_service()
             result = chat_service.reply(
                 user_message=user_message,
                 history=history,
+                lang=lang,
             )
             answer: str = result["answer"]
             citations: list = result.get("citations", [])

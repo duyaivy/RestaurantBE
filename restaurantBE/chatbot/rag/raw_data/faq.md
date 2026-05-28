@@ -21,6 +21,7 @@
 - **Opening hours (fictional):** 10:00 AM – 10:00 PM daily
 - **Dining modes:** Dine-in, takeaway, local delivery
 - **Atmosphere:** Casual, warm, family-rooted, friendly to tourists
+- **Guest facilities (fictional):** Free guest Wi-Fi, indoor restroom, motorbike parking support, limited car parking guidance, air-conditioned/fan seating, phone charging on request, child-friendly seating, and simple English support
 - **Brand story summary:** VietFood grew from a small family eatery and was modernized by Nguyễn Quốc Duy, a student from the University of Science and Technology – The University of Danang, who wanted to keep familiar family flavors while serving local diners and foreign visitors more clearly and warmly.
 
 ## F001 — What kind of restaurant is VietFood?
@@ -297,6 +298,171 @@
 - **answer_vi:** Có. VietFood khá phù hợp với khách nước ngoài vì menu có thể giải thích bằng tiếng Anh đơn giản, nhiều món là điểm bắt đầu rất dễ tiếp cận với ẩm thực Việt, và câu chuyện thương hiệu cũng thiên về sự hướng dẫn thân thiện thay vì tạo cảm giác khó hiểu. Phở bò, Gỏi cuốn, Cơm gà Hội An và Nước cam là những lựa chọn mở đầu rất ổn.
 - **related_menu_items:** Beef Pho (Phở bò), Fresh Spring Rolls, Hoi An Chicken Rice (Cơm gà Hội An), Orange Juice (Nước cam)
 - **keywords:** foreign visitors, english menu, tourists, beginner friendly vietnamese food
+
+## F026 — Does VietFood have free Wi-Fi?
+
+- **category:** facilities
+- **intents:** wifi, internet_access, guest_facilities, tourist_help
+- **question_en:** Does VietFood have free Wi-Fi?
+- **question_vi:** VietFood có Wi-Fi miễn phí không?
+- **answer_en:** Yes. In this fictional service setup, VietFood offers free guest Wi-Fi for dine-in customers. Guests can ask staff for the current network name and password. The Wi-Fi is intended for light browsing, messaging, translation apps, and checking maps, not heavy downloads or long work sessions.
+- **answer_vi:** Có. Trong mô hình dịch vụ giả lập này, VietFood có Wi-Fi miễn phí cho khách dùng bữa tại quán. Khách có thể hỏi nhân viên tên mạng và mật khẩu hiện tại. Wi-Fi phù hợp để lướt web nhẹ, nhắn tin, dùng app dịch thuật hoặc xem bản đồ, không khuyến khích tải dữ liệu nặng hay ngồi làm việc quá lâu.
+- **related_menu_items:** Orange Juice (Nước cam), Water (Nước lọc), Beef Pho (Phở bò)
+- **keywords:** wifi, wi-fi, internet, password, guest network, free wifi, translation app
+
+## F027 — Where are the restrooms?
+
+- **category:** facilities
+- **intents:** restroom, toilet, bathroom, guest_facilities
+- **question_en:** Where are the restrooms?
+- **question_vi:** Nhà vệ sinh ở đâu?
+- **answer_en:** VietFood has an indoor restroom area for dine-in guests in the fictional restaurant layout. Guests can ask staff for directions, especially during busy dinner hours when the dining area may be crowded. The assistant should answer politely and keep the direction simple.
+- **answer_vi:** Trong bố cục nhà hàng giả lập, VietFood có khu nhà vệ sinh bên trong dành cho khách ăn tại quán. Khách có thể hỏi nhân viên để được chỉ đường, nhất là vào giờ tối đông khách khi khu vực bàn ăn khá nhộn nhịp. Trợ lý nên trả lời lịch sự và hướng dẫn ngắn gọn.
+- **related_menu_items:** Fresh Spring Rolls, Water (Nước lọc)
+- **keywords:** restroom, toilet, bathroom, washroom, nhà vệ sinh, toilet ở đâu
+
+## F028 — Is parking available?
+
+- **category:** facilities
+- **intents:** parking, motorbike_parking, car_parking, arrival_help
+- **question_en:** Is parking available?
+- **question_vi:** Quán có bãi đỗ xe không?
+- **answer_en:** In the demo setup, VietFood can support motorbike parking near the entrance or in a nearby guided area. Car parking is more limited, so guests arriving by car should ask staff for the nearest available spot or use taxi and ride-hailing during peak dinner time.
+- **answer_vi:** Trong dữ liệu demo, VietFood có hỗ trợ chỗ đỗ xe máy gần lối vào hoặc khu vực gần quán theo hướng dẫn của nhân viên. Chỗ đỗ ô tô hạn chế hơn, nên khách đi ô tô nên hỏi nhân viên vị trí gần nhất còn trống hoặc cân nhắc đi taxi/xe công nghệ vào giờ tối cao điểm.
+- **related_menu_items:** Chicken Hotpot with Basil (Lẩu gà lá é), Hoi An Chicken Rice (Cơm gà Hội An)
+- **keywords:** parking, motorbike parking, car parking, bike parking, bãi xe, đỗ xe, gửi xe
+
+## F029 — Does VietFood have air-conditioned seating?
+
+- **category:** facilities
+- **intents:** air_conditioning, seating_preference, indoor_seating, comfort
+- **question_en:** Does VietFood have air-conditioned seating?
+- **question_vi:** VietFood có khu vực máy lạnh không?
+- **answer_en:** Yes. VietFood can be described as having a mix of cooler indoor seating and casual fan-cooled seating. Guests who prefer a cooler table should mention it when arriving or when booking, because the most comfortable seats may fill up quickly during dinner.
+- **answer_vi:** Có. Có thể mô tả VietFood có cả khu ngồi trong nhà mát hơn và khu ngồi quạt theo phong cách gần gũi. Nếu khách muốn bàn mát, nên báo khi đến hoặc khi đặt bàn vì các vị trí dễ chịu thường hết nhanh vào giờ ăn tối.
+- **related_menu_items:** Hue Beef Noodle Soup (Bún bò Huế), Orange Juice (Nước cam), Water (Nước lọc)
+- **keywords:** air conditioning, air-conditioned, cool table, indoor seating, máy lạnh, bàn mát
+
+## F030 — Can guests charge phones or laptops?
+
+- **category:** facilities
+- **intents:** charging, power_outlet, phone_battery, laptop
+- **question_en:** Can guests charge phones or laptops?
+- **question_vi:** Khách có thể sạc điện thoại hoặc laptop không?
+- **answer_en:** VietFood can help with phone charging on request when a safe outlet is available. Laptop charging may be possible at some tables, but the restaurant should not be presented as a coworking space. Guests should keep devices with them and avoid blocking walkways with cables.
+- **answer_vi:** VietFood có thể hỗ trợ sạc điện thoại nếu có ổ cắm an toàn còn trống. Một số bàn có thể sạc laptop, nhưng không nên mô tả quán như không gian coworking. Khách nên tự giữ thiết bị và tránh để dây sạc chắn lối đi.
+- **related_menu_items:** Vietnamese Baguette Sandwich (Bánh mì), Orange Juice (Nước cam), Water (Nước lọc)
+- **keywords:** charging, phone charger, power outlet, laptop charging, sạc điện thoại, ổ cắm
+
+## F031 — Is VietFood suitable for children and older guests?
+
+- **category:** family
+- **intents:** family_friendly, children, older_guests, seating_help
+- **question_en:** Is VietFood suitable for children and older guests?
+- **question_vi:** VietFood có phù hợp cho trẻ em và người lớn tuổi không?
+- **answer_en:** Yes. VietFood is designed as a casual family-friendly restaurant. For children or older guests, staff can suggest easier seating and mild dishes such as Hoi An Chicken Rice, Beef Pho, Yangzhou Fried Rice, Water, or Orange Juice. Groups with strollers should ask for a more spacious table when possible.
+- **answer_vi:** Có. VietFood được xây dựng theo hướng nhà hàng gần gũi, phù hợp gia đình. Với trẻ em hoặc người lớn tuổi, nhân viên có thể gợi ý vị trí ngồi dễ di chuyển và các món nhẹ như Cơm gà Hội An, Phở bò, Cơm chiên Dương Châu, Nước lọc hoặc Nước cam. Nhóm có xe đẩy trẻ em nên hỏi bàn rộng hơn nếu còn chỗ.
+- **related_menu_items:** Hoi An Chicken Rice (Cơm gà Hội An), Beef Pho (Phở bò), Yangzhou Fried Rice (Cơm chiên Dương Châu), Water (Nước lọc), Orange Juice (Nước cam)
+- **keywords:** children, kids, older guests, family friendly, stroller, elderly, trẻ em, người lớn tuổi
+
+## F032 — Is the restaurant wheelchair or stroller friendly?
+
+- **category:** accessibility
+- **intents:** accessibility, wheelchair, stroller, seating_support
+- **question_en:** Is the restaurant wheelchair or stroller friendly?
+- **question_vi:** Quán có phù hợp cho xe lăn hoặc xe đẩy em bé không?
+- **answer_en:** In the fictional layout, VietFood can try to arrange easier-access seating for guests using a wheelchair or stroller, especially if the request is mentioned before arrival. Some paths may be tighter during peak hours, so the safest assistant answer is to recommend contacting staff before visiting with accessibility needs.
+- **answer_vi:** Trong bố cục giả lập, VietFood có thể cố gắng sắp xếp bàn dễ tiếp cận hơn cho khách dùng xe lăn hoặc xe đẩy em bé, đặc biệt nếu khách báo trước. Một số lối đi có thể hẹp hơn vào giờ cao điểm, nên câu trả lời an toàn là khuyên khách liên hệ nhân viên trước khi đến nếu có nhu cầu hỗ trợ di chuyển.
+- **related_menu_items:** Fresh Spring Rolls, Hoi An Chicken Rice (Cơm gà Hội An), Water (Nước lọc)
+- **keywords:** wheelchair, stroller, accessibility, accessible seating, xe lăn, xe đẩy, hỗ trợ di chuyển
+
+## F033 — Is smoking allowed?
+
+- **category:** policy
+- **intents:** smoking_policy, non_smoking, family_comfort
+- **question_en:** Is smoking allowed?
+- **question_vi:** Nhà hàng có cho hút thuốc không?
+- **answer_en:** VietFood should be described as keeping the main dining area comfortable and family-friendly, so smoking is not allowed inside the main indoor dining space. If a smoking area is available, it should be outside or away from families, and guests should ask staff before smoking.
+- **answer_vi:** Nên mô tả VietFood giữ khu vực ăn chính thoải mái và thân thiện với gia đình, vì vậy không hút thuốc trong khu ăn uống trong nhà. Nếu có khu vực hút thuốc, khu đó nên ở ngoài hoặc tách xa bàn gia đình, và khách cần hỏi nhân viên trước khi hút.
+- **related_menu_items:** Hoi An Chicken Rice (Cơm gà Hội An), Water (Nước lọc)
+- **keywords:** smoking, non-smoking, smoke-free, hút thuốc, cấm hút thuốc, family comfort
+
+## F034 — Are pets allowed?
+
+- **category:** policy
+- **intents:** pet_policy, outdoor_seating, service_animals
+- **question_en:** Are pets allowed?
+- **question_vi:** Có được mang thú cưng vào quán không?
+- **answer_en:** For a realistic assistant reply, VietFood can allow small, calm pets only in suitable outdoor or front seating areas when available. Pets should stay leashed or in a carrier and should not enter the kitchen or disturb other guests. Guests should confirm with staff before arriving with a pet.
+- **answer_vi:** Để trả lời thực tế, VietFood có thể cho phép thú cưng nhỏ, hiền ở khu vực ngoài trời hoặc khu trước quán nếu còn chỗ phù hợp. Thú cưng nên được xích hoặc đặt trong túi/chuồng mang theo, không vào khu bếp và không làm ảnh hưởng khách khác. Khách nên hỏi nhân viên trước khi mang thú cưng đến.
+- **related_menu_items:** Fresh Spring Rolls, Orange Juice (Nước cam), Water (Nước lọc)
+- **keywords:** pets, pet friendly, dog, cat, outdoor seating, thú cưng, chó mèo
+
+## F035 — Can I bring luggage or a suitcase?
+
+- **category:** facilities
+- **intents:** luggage, suitcase, tourist_help, storage
+- **question_en:** Can I bring luggage or a suitcase?
+- **question_vi:** Khách có thể mang vali hoặc hành lý vào quán không?
+- **answer_en:** Small luggage is usually fine if it does not block walkways. VietFood does not need to be described as having formal luggage storage, but staff can help suggest a safer corner or a table with more space when available. Guests should keep valuables with them.
+- **answer_vi:** Hành lý nhỏ thường có thể mang vào nếu không chắn lối đi. Không nên mô tả VietFood có dịch vụ giữ hành lý chính thức, nhưng nhân viên có thể gợi ý góc đặt đồ an toàn hơn hoặc bàn rộng hơn nếu còn chỗ. Khách nên tự giữ đồ có giá trị bên mình.
+- **related_menu_items:** Beef Pho (Phở bò), Vietnamese Baguette Sandwich (Bánh mì), Orange Juice (Nước cam)
+- **keywords:** luggage, suitcase, bags, storage, tourist luggage, vali, hành lý, gửi đồ
+
+## F036 — Do staff support English-speaking guests?
+
+- **category:** tourist
+- **intents:** english_support, foreign_guest, translation, menu_help
+- **question_en:** Do staff support English-speaking guests?
+- **question_vi:** Nhân viên có hỗ trợ khách nói tiếng Anh không?
+- **answer_en:** Yes. VietFood is designed to be friendly to foreign visitors, so the assistant can say that staff can support simple English menu questions and help explain dish names. The chatbot should still use clear dish descriptions and Vietnamese names in parentheses for better retrieval and ordering accuracy.
+- **answer_vi:** Có. VietFood được xây dựng theo hướng thân thiện với khách nước ngoài, nên trợ lý có thể trả lời rằng nhân viên hỗ trợ các câu hỏi menu bằng tiếng Anh đơn giản và giải thích tên món. Chatbot vẫn nên mô tả món rõ ràng và kèm tên tiếng Việt trong ngoặc để khách gọi món chính xác hơn.
+- **related_menu_items:** Beef Pho (Phở bò), Fresh Spring Rolls, Quang Noodle (Mì Quảng), Hoi An Chicken Rice (Cơm gà Hội An)
+- **keywords:** English support, English menu, foreign guests, tourists, translate, hỗ trợ tiếng Anh
+
+## F037 — How long is the usual waiting time for food?
+
+- **category:** service
+- **intents:** waiting_time, food_prep_time, quick_order, peak_hours
+- **question_en:** How long is the usual waiting time for food?
+- **question_vi:** Thường phải chờ món bao lâu?
+- **answer_en:** In the demo setup, simple dishes like rice plates, noodle dishes, starters, and drinks are usually faster, while grilled dishes, seafood, and hotpot may take longer. A practical chatbot estimate is about 10–15 minutes for simpler orders and 15–25 minutes or more for grilled, seafood, or hotpot orders during busy periods.
+- **answer_vi:** Trong dữ liệu demo, các món đơn giản như cơm, món nước, khai vị và đồ uống thường ra nhanh hơn, còn món nướng, hải sản và lẩu có thể lâu hơn. Chatbot có thể ước lượng thực tế khoảng 10–15 phút cho món đơn giản và 15–25 phút hoặc hơn cho món nướng, hải sản, lẩu vào lúc đông khách.
+- **related_menu_items:** Vietnamese Baguette Sandwich (Bánh mì), Beef Pho (Phở bò), BBQ Grilled Pork Ribs, Chicken Hotpot with Basil (Lẩu gà lá é)
+- **keywords:** waiting time, prep time, how long, quick food, chờ món, ra món nhanh
+
+## F038 — Can VietFood host birthdays or small group gatherings?
+
+- **category:** groups
+- **intents:** birthday, group_booking, small_event, celebration
+- **question_en:** Can VietFood host birthdays or small group gatherings?
+- **question_vi:** VietFood có nhận sinh nhật hoặc nhóm nhỏ không?
+- **answer_en:** Yes, for the fictional restaurant setup, VietFood can support small birthday meals, casual celebrations, and group gatherings if guests reserve ahead. Hotpot, grilled dishes, seafood plates, and rice or noodle anchors work well for groups. Large decorations, loud sound, or special setup should be confirmed with staff first.
+- **answer_vi:** Có. Trong mô hình nhà hàng giả lập, VietFood có thể hỗ trợ bữa sinh nhật nhỏ, buổi gặp mặt thân mật hoặc nhóm đông nếu khách đặt trước. Lẩu, món nướng, hải sản và các món cơm/mì làm món chính khá hợp cho nhóm. Trang trí lớn, âm thanh to hoặc setup đặc biệt cần hỏi nhân viên trước.
+- **related_menu_items:** Chicken Hotpot with Basil (Lẩu gà lá é), BBQ Grilled Pork Ribs, Tamarind Fried Crab (Cua rang me), Quang Noodle (Mì Quảng)
+- **keywords:** birthday, celebration, group booking, small event, party, sinh nhật, nhóm đông
+
+## F039 — Can I request a quiet table?
+
+- **category:** service
+- **intents:** quiet_table, seating_preference, date_night, family_comfort
+- **question_en:** Can I request a quiet table?
+- **question_vi:** Có thể xin bàn yên tĩnh hơn không?
+- **answer_en:** Guests can request a quieter table when booking or arriving. VietFood can try to seat them away from the entrance, kitchen flow, or larger groups when space allows. The assistant should not guarantee silence, especially during the 6:00 PM to 8:00 PM dinner rush.
+- **answer_vi:** Khách có thể yêu cầu bàn yên tĩnh hơn khi đặt bàn hoặc khi đến quán. VietFood có thể cố gắng xếp bàn xa lối vào, luồng bếp hoặc bàn nhóm lớn nếu còn chỗ. Trợ lý không nên cam kết quán hoàn toàn yên tĩnh, nhất là khung 6:00 tối đến 8:00 tối.
+- **related_menu_items:** Fresh Spring Rolls, Steamed Shrimp with Lemongrass (Tôm hấp sả), Orange Juice (Nước cam)
+- **keywords:** quiet table, calm seating, date, family comfort, bàn yên tĩnh, chỗ ngồi yên tĩnh
+
+## F040 — Can I split the bill or request a receipt?
+
+- **category:** payments
+- **intents:** split_bill, receipt, invoice, payment_support
+- **question_en:** Can I split the bill or request a receipt?
+- **question_vi:** Có thể chia hóa đơn hoặc xin hóa đơn không?
+- **answer_en:** VietFood can support basic receipt requests and can help guests split payment informally when the group agrees how to divide the order. For official invoices or detailed business receipts, guests should ask staff before paying so the necessary information can be prepared correctly.
+- **answer_vi:** VietFood có thể hỗ trợ xuất hóa đơn/biên nhận cơ bản và hỗ trợ nhóm chia tiền theo cách đơn giản nếu cả nhóm đã thống nhất. Với hóa đơn chính thức hoặc chứng từ chi tiết cho công ty, khách nên báo nhân viên trước khi thanh toán để chuẩn bị đúng thông tin.
+- **related_menu_items:** Water (Nước lọc), Orange Juice (Nước cam)
+- **keywords:** split bill, receipt, invoice, payment, hóa đơn, chia tiền, thanh toán nhóm
 
 ## Menu appendix (exact dish names aligned to current AVAILABLE menu)
 
