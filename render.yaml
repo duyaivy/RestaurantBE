@@ -49,10 +49,14 @@ services:
         value: "0.2"
       - key: CHATBOT_LLM_REASONING_ENABLED
         value: "false"
-      - key: CHATBOT_EMBEDDING_BASE_URL
-        value: "https://openrouter.ai/api/v1"
+      - key: CHATBOT_EMBEDDING_PROVIDER
+        value: "gemini"
       - key: CHATBOT_EMBEDDING_MODEL
-        value: "text-embedding-3-small"
+        value: "gemini-embedding-001"
+      - key: CHATBOT_EMBEDDING_DIMENSIONS
+        value: "768"
+      - key: CHATBOT_EMBEDDING_TIMEOUT_SECONDS
+        value: "30"
       - key: CHATBOT_EMBEDDING_API_KEY
         sync: false
       - key: CHATBOT_CHROMA_DIR
