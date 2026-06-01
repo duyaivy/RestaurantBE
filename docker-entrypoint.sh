@@ -1,27 +1,25 @@
 #!/bin/bash
-
 set -euo pipefail
 
+# Decode Google credentials from base64 if provided
 if [ -n "${GOOGLE_CREDENTIALS_JSON_BASE64:-}" ]; then
-	GCP_CREDENTIALS_PATH="/tmp/gcp-sa.json"
-	if command -v base64 >/dev/null 2>&1; then
-		printf '%s' "${GOOGLE_CREDENTIALS_JSON_BASE64}" | base64 -d > "${GCP_CREDENTIALS_PATH}"
-	else
-		echo "base64 command not found" >&2
-		exit 1
-	fi
-	chmod 600 "${GCP_CREDENTIALS_PATH}"
-	export GOOGLE_APPLICATION_CREDENTIALS="${GCP_CREDENTIALS_PATH}"
+    GCP_CREDENTIALS_PATH="/tmp/gcp-sa.json"
+    printf '%s' "${GOOGLE_CREDENTIALS_JSON_BASE64}" | base64 -d > "${GCP_CREDENTIALS_PATH}"
+    chmod 600 "${GCP_CREDENTIALS_PATH}"
+    export GOOGLE_APPLICATION_CREDENTIALS="${GCP_CREDENTIALS_PATH}"
+    echo "Google credentials decoded."
 fi
 
-echo "Make migrations"
-python manage.py makemigrations
+echo "Running migrations..."
+python manage.py makemigrations --noinput
+python manage.py migrate --noinput
 
-echo "Apply database migrations"
-python manage.py migrate
+echo "Collecting static files..."
+python manage.py collectstatic --noinput 2>/dev/null || true
 
-echo "Seed database"
-python manage.py loaddata restaurantBE/database/seed.json || echo "Seed data not found or already loaded"
-
-echo "Starting server on port ${PORT:-80}"
-gunicorn --bind 0.0.0.0:${PORT:-80} --access-logfile - --error-logfile - restaurantBE.wsgi
+echo "Starting server on port ${PORT:-8000}..."
+exec uvicorn restaurantBE.asgi:application \
+    --host 0.0.0.0 \
+    --port "${PORT:-8000}" \
+    --workers "${WEB_CONCURRENCY:-2}" \
+    --log-level "${LOG_LEVEL:-info}"

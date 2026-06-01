@@ -1,37 +1,30 @@
-FROM python:3.10
-ENV PYTHONUNBUFFERED 1
+FROM python:3.11-slim
 
-ARG ENV
-ARG SECRET_KEY
-ARG DB_NAME
-ARG DB_USERNAME
-ARG DB_PASSWORD
-ARG DB_HOST
-ARG CORS_ALLOWED_ORIGINS
-ARG HOST
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    DJANGO_SETTINGS_MODULE=restaurantBE.settings.production
 
-# Allows docker to cache installed dependencies between builds
-COPY ./requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+# System dependencies for psycopg2, Pillow, etc.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Adds our application code to the image
-COPY . code
-WORKDIR code
+WORKDIR /app
 
-EXPOSE 80
+# Install Python dependencies (cached layer)
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-ENV DJANGO_SETTINGS_MODULE "restaurantBE.settings.production"
-ENV PORT 80
+# Copy project
+COPY . .
 
-ENV ENV ${ENV}
-ENV SECRET_KEY ${SECRET_KEY}
-ENV DB_NAME ${DB_NAME}
-ENV DB_USERNAME ${DB_USERNAME}
-ENV DB_PASSWORD ${DB_PASSWORD}
-ENV DB_HOST ${DB_HOST}
-ENV CORS_ALLOWED_ORIGINS ${CORS_ALLOWED_ORIGINS}
-ENV HOST ${HOST}
+# Collect static files
+RUN python manage.py collectstatic --noinput 2>/dev/null || true
 
-RUN ["chmod", "+x", "./docker-entrypoint.sh"]
+# Make entrypoint executable
+RUN chmod +x docker-entrypoint.sh
+
+EXPOSE 8000
 
 ENTRYPOINT ["./docker-entrypoint.sh"]

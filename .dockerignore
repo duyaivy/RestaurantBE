@@ -1,27 +1,62 @@
+# Version control
+.git/
+.gitignore
+
+# Python
 *.pyc
 *.pyo
-*.mo
-*.db
-*.css.map
-*.egg-info
-*.sql.gz
-.cache
-.project
-.idea
-.pydevproject
-.idea/workspace.xml
+__pycache__/
+venv/
+.venv/
+env/
+*.egg-info/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
 .DS_Store
-.git/
-.sass-cache
-.vagrant/
-__pycache__
-dist
-docs
-env
-logs
-**/settings/local.py
-**/node_modules
-web/media
-web/static/CACHE
-stats
+Thumbs.db
+
+# Docker (don't send Docker context to Docker context)
 Dockerfile
+docker-compose.yml
+docker-compose*.yml
+
+# Docs
+docs/
+README.md
+LICENSE
+
+# Dev/test files
+*.test
+*.spec
+tests/
+scripts/test_*.py
+scratch_*
+
+# Node
+node_modules/
+
+# Logs
+logs/
+*.log
+
+# Build artifacts
+dist/
+build/
+staticfiles/
+
+# ChromaDB (rebuilt on deploy)
+restaurantBE/chatbot/rag/.chroma/
+
+# Local settings (keep production.py)
+restaurantBE/settings/local.py
+
+# Env files (passed via env_file or environment)
+.env
+.env.*
+!.env.example

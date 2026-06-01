@@ -194,19 +194,19 @@ else:
 
 CHATBOT_EMBEDDING_TIMEOUT_SECONDS = int(os.getenv("CHATBOT_EMBEDDING_TIMEOUT_SECONDS", "30"))
 NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY")
-# Chatbot LLM (OpenRouter/OpenAI-compatible)
-CHATBOT_LLM_BASE_URL = os.getenv("CHATBOT_LLM_BASE_URL", "https://openrouter.ai/api/v1")
-CHATBOT_LLM_MODEL = os.getenv(
-    "CHATBOT_LLM_MODEL", "gemini-2.5-flash"
-)
+# Chatbot LLM provider: gemini | groq
+CHATBOT_LLM_PROVIDER = os.getenv("CHATBOT_LLM_PROVIDER", "gemini").lower()
+CHATBOT_LLM_MODEL = os.getenv("CHATBOT_LLM_MODEL", "")
 CHATBOT_LLM_TEMPERATURE = float(os.getenv("CHATBOT_LLM_TEMPERATURE", "0.2"))
 CHATBOT_LLM_MAX_TOKENS = int(os.getenv("CHATBOT_LLM_MAX_TOKENS", "300"))
 CHATBOT_LLM_REASONING_ENABLED = os.getenv(
     "CHATBOT_LLM_REASONING_ENABLED", "false"
 ).lower() in {"1", "true", "yes", "on"}
-# Primary key for chat completions through OpenRouter.
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+# API keys for LLM providers
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+CHATBOT_LLM_BASE_URL = os.getenv("CHATBOT_LLM_BASE_URL", "")
 # Local Chroma vector DB
 CHATBOT_CHROMA_DIR = os.getenv("CHATBOT_CHROMA_DIR")
 CHATBOT_CHROMA_COLLECTION = os.getenv("CHATBOT_CHROMA_COLLECTION", "restaurant_chatbot")
