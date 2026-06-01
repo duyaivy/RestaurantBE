@@ -173,6 +173,125 @@ class ExternalAPIEmbeddingBackend:
         return f"Embedding request failed: {exc}"
 
 
+class JinaEmbeddingBackend:
+    """Embedding backend using Jina AI API (OpenAI-compatible endpoint)."""
+
+    API_URL = "https://api.jina.ai/v1/embeddings"
+
+    def __init__(
+        self,
+        model: str,
+        api_key: str,
+        dimensions: int | None = None,
+        timeout: int | None = None,
+    ) -> None:
+        self.model = model
+        self.api_key = api_key
+        self.dimensions = dimensions
+        self.timeout = timeout or 30
+
+        logger.info(
+            "JinaEmbeddingBackend initialized with model='%s', dimensions=%s, timeout=%s.",
+            model,
+            dimensions,
+            self.timeout,
+        )
+
+    def _call_api(self, texts: List[str]) -> List[List[float]]:
+        import time
+
+        import requests
+
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.api_key}",
+        }
+        payload: dict = {"model": self.model, "input": texts}
+        if self.dimensions is not None:
+            payload["dimensions"] = self.dimensions
+
+        delay = 2.0
+        for attempt in range(5):
+            try:
+                resp = requests.post(
+                    self.API_URL,
+                    headers=headers,
+                    json=payload,
+                    timeout=self.timeout,
+                )
+                if resp.status_code == 429:
+                    logger.warning(
+                        "Jina rate limit hit. Retrying in %.2f seconds (attempt %d/5)...",
+                        delay,
+                        attempt + 1,
+                    )
+                    time.sleep(delay)
+                    delay *= 2.0
+                    continue
+
+                resp.raise_for_status()
+                data = resp.json()
+                # Response format: {"data": [{"embedding": [...], "index": 0}, ...]}
+                sorted_items = sorted(data["data"], key=lambda x: x["index"])
+                return [item["embedding"] for item in sorted_items]
+
+            except requests.exceptions.Timeout:
+                logger.warning(
+                    "Jina request timeout. Retrying in %.2f seconds (attempt %d/5)...",
+                    delay,
+                    attempt + 1,
+                )
+                time.sleep(delay)
+                delay *= 2.0
+            except requests.exceptions.RequestException as exc:
+                exc_str = str(exc).lower()
+                if "timeout" in exc_str or "connect" in exc_str or "network" in exc_str:
+                    logger.warning(
+                        "Jina network error (%s). Retrying in %.2f seconds (attempt %d/5)...",
+                        exc,
+                        delay,
+                        attempt + 1,
+                    )
+                    time.sleep(delay)
+                    delay *= 2.0
+                else:
+                    raise RuntimeError(f"Jina embedding request failed: {exc}") from exc
+
+        # Final attempt without catch
+        resp = requests.post(
+            self.API_URL,
+            headers=headers,
+            json=payload,
+            timeout=self.timeout,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        sorted_items = sorted(data["data"], key=lambda x: x["index"])
+        return [item["embedding"] for item in sorted_items]
+
+    def embed_text(self, text: str) -> List[float]:
+        text = (text or "").strip()
+        if not text:
+            logger.warning("Received empty text for embedding.")
+            return []
+        embeddings = self._call_api([text])
+        return embeddings[0] if embeddings else []
+
+    def embed_texts(self, texts: List[str], batch_size: int = 32) -> List[List[float]]:
+        clean = [(t or "").strip() for t in texts if (t or "").strip()]
+        if not clean:
+            return []
+        all_embeddings: List[List[float]] = []
+        for start in range(0, len(clean), batch_size):
+            batch = clean[start : start + batch_size]
+            batch_embeddings = self._call_api(batch)
+            all_embeddings.extend(batch_embeddings)
+        return all_embeddings
+
+    def _build_embedding_error_message(self, exc: Exception) -> str:
+        return f"Jina embedding request failed: {exc}"
+
+
 class LocalEmbeddingBackend:
     _model_instance = None
 
@@ -252,7 +371,11 @@ class EmbeddingService:
             or "local"
         ).lower()
 
-        default_model = "gemini-embedding-001" if self.provider == "gemini" else "intfloat/multilingual-e5-small"
+        provider_defaults = {
+            "gemini": "gemini-embedding-001",
+            "jina": "jina-embeddings-v3",
+        }
+        default_model = provider_defaults.get(self.provider, "intfloat/multilingual-e5-small")
         self.model = (
             model
             or getattr(settings, "CHATBOT_EMBEDDING_MODEL", None)
@@ -278,6 +401,22 @@ class EmbeddingService:
                 model=self.model,
                 device=self.device,
                 normalize=self.normalize,
+            )
+        elif self.provider == "jina":
+            api_key = (
+                api_key
+                or getattr(settings, "CHATBOT_EMBEDDING_API_KEY", None)
+                or os.environ.get("JINA_API_KEY")
+            )
+            if not api_key:
+                raise ImproperlyConfigured(
+                    "Missing CHATBOT_EMBEDDING_API_KEY or JINA_API_KEY for Jina embedding service."
+                )
+            self._backend = JinaEmbeddingBackend(
+                model=self.model,
+                api_key=api_key,
+                dimensions=self.dimensions,
+                timeout=self.timeout,
             )
         else:
             base_url = (
