@@ -49,5 +49,10 @@ urlpatterns = [
         name="order-update-items",
     ),
     path("orders/verify/", VerifyOrderVNpayView.as_view(), name="order-verify"),
+    path(
+        "orders/verify/<path:extra>",
+        VerifyOrderVNpayView.as_view(),
+        name="order-verify-alias",
+    ),
     path("orders/<int:pk>/payment/", OrderCreatePaymentView.as_view(), name="order-vnpay-create-payment"),
 ]

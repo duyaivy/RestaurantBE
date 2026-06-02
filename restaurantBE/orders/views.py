@@ -666,7 +666,7 @@ class VerifyOrderVNpayView(GenericAPIView):
         separator = "&" if "?" in CLIENT_URL else "?"
         return HttpResponseRedirect(f"{CLIENT_URL}{separator}{urlencode(query_data)}")
 
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         input_data = request.GET
 
         if not input_data:
