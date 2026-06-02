@@ -500,8 +500,8 @@ class OrderUpdateItemsAPIView(GenericAPIView):
                         if "note" in item_data:
                             order_item.note = item_data["note"]
 
-                        if "status" in item_data:
-                            order_item.item_status = item_data["status"]
+                        if "item_status" in item_data:
+                            order_item.item_status = item_data["item_status"]
 
                         order_item.save()
                         updated_items.append(order_item)
@@ -666,7 +666,7 @@ class VerifyOrderVNpayView(GenericAPIView):
         separator = "&" if "?" in CLIENT_URL else "?"
         return HttpResponseRedirect(f"{CLIENT_URL}{separator}{urlencode(query_data)}")
 
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         input_data = request.GET
 
         if not input_data:

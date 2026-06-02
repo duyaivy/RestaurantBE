@@ -1,7 +1,7 @@
-# Fix: DB column for category_id FK is "category_id" (not "category_id_id").
-# After migration 0003 converted IntegerField -> ForeignKey, Django created
-# column "category_id_id" (default behavior). This migration renames it back
-# to "category_id" in the actual database.
+# Fix: DB column for dish_id FK is "dish_id" (not "dish_id_id").
+# After migration 0003 created DishSnapshot with ForeignKey, Django created
+# column "dish_id_id" (default behavior). This migration renames it back
+# to "dish_id" in the actual database.
 # Uses conditional SQL so it works on both fresh DB and existing DB (Supabase).
 
 from django.db import migrations, models
@@ -11,8 +11,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('categories', '0003_auto_20260226_1727'),
-        ('dishes', '0005_auto_20260314_0036'),
+        ('dishes', '0008_auto_20260408_2211'),
     ]
 
     operations = [
@@ -20,33 +19,33 @@ class Migration(migrations.Migration):
             database_operations=[
                 migrations.RunSQL(
                     sql=[
-                        # Rename category_id_id -> category_id only if the wrong column exists
+                        # Rename dish_id_id -> dish_id only if the wrong column exists
                         """
                         DO $$
                         BEGIN
                             IF EXISTS (
                                 SELECT 1 FROM information_schema.columns
-                                WHERE table_name = 'dish' AND column_name = 'category_id_id'
+                                WHERE table_name = 'dish_snapshot' AND column_name = 'dish_id_id'
                             ) AND NOT EXISTS (
                                 SELECT 1 FROM information_schema.columns
-                                WHERE table_name = 'dish' AND column_name = 'category_id'
+                                WHERE table_name = 'dish_snapshot' AND column_name = 'dish_id'
                             ) THEN
-                                ALTER TABLE dish RENAME COLUMN category_id_id TO category_id;
+                                ALTER TABLE dish_snapshot RENAME COLUMN dish_id_id TO dish_id;
                             END IF;
                         END $$;
                         """,
-                        # If neither column exists (fresh DB), add category_id column
+                        # If neither column exists (fresh DB), add dish_id column
                         """
                         DO $$
                         BEGIN
                             IF NOT EXISTS (
                                 SELECT 1 FROM information_schema.columns
-                                WHERE table_name = 'dish' AND column_name = 'category_id'
+                                WHERE table_name = 'dish_snapshot' AND column_name = 'dish_id'
                             ) AND NOT EXISTS (
                                 SELECT 1 FROM information_schema.columns
-                                WHERE table_name = 'dish' AND column_name = 'category_id_id'
+                                WHERE table_name = 'dish_snapshot' AND column_name = 'dish_id_id'
                             ) THEN
-                                ALTER TABLE dish ADD COLUMN category_id BIGINT NULL;
+                                ALTER TABLE dish_snapshot ADD COLUMN dish_id BIGINT NULL;
                             END IF;
                         END $$;
                         """,
@@ -57,9 +56,9 @@ class Migration(migrations.Migration):
                         BEGIN
                             IF EXISTS (
                                 SELECT 1 FROM information_schema.columns
-                                WHERE table_name = 'dish' AND column_name = 'category_id'
+                                WHERE table_name = 'dish_snapshot' AND column_name = 'dish_id'
                             ) THEN
-                                ALTER TABLE dish DROP COLUMN category_id;
+                                ALTER TABLE dish_snapshot DROP COLUMN dish_id;
                             END IF;
                         END $$;
                         """,
@@ -68,13 +67,13 @@ class Migration(migrations.Migration):
             ],
             state_operations=[
                 migrations.AlterField(
-                    model_name='dish',
-                    name='category_id',
+                    model_name='dishsnapshot',
+                    name='dish_id',
                     field=models.ForeignKey(
-                        db_column='category_id',
+                        db_column='dish_id',
                         null=True,
                         on_delete=django.db.models.deletion.SET_NULL,
-                        to='categories.category',
+                        to='dishes.dish',
                     ),
                 ),
             ],

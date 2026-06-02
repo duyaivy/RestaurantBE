@@ -4,6 +4,7 @@ Guest URLs Configuration
 
 from django.urls import path
 from restaurantBE.guests.views import (
+    GuestListAPIView,
     GuestLoginAPIView,
     GuestLogoutAPIView,
     GuestMessageAPIView,
@@ -12,6 +13,8 @@ from restaurantBE.guests.views import (
 )
 
 urlpatterns = [
+    path("guests/", GuestListAPIView.as_view(), name="guest-list"),
+    path("guest/", GuestListAPIView.as_view(), name="guest-list-alias"),
     # Guest Authentication (Login creates new guest)
     path("guests/login/", GuestLoginAPIView.as_view(), name="guest-login"),
     path("guests/logout/", GuestLogoutAPIView.as_view(), name="guest-logout"),
