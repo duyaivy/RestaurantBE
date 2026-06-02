@@ -239,7 +239,19 @@ class OrderItemUpdateSerializer(serializers.Serializer):
     order_item_id = serializers.IntegerField(required=True)
     quantity = serializers.IntegerField(min_value=1, required=False)
     note = serializers.CharField(allow_blank=True, required=False)
+    item_status = serializers.ChoiceField(choices=OrderItemStatus.choices, required=False)
     status = serializers.ChoiceField(choices=OrderItemStatus.choices, required=False)
+
+    def validate(self, data):
+        status_value = data.pop("status", None)
+        item_status_value = data.get("item_status")
+
+        if status_value is not None:
+            if item_status_value is not None and item_status_value != status_value:
+                raise ValidationError(_("conflicting_item_status"))
+            data["item_status"] = status_value
+
+        return data
 
 
 class OrderItemsUpdateSerializer(serializers.Serializer):

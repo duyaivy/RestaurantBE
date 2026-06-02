@@ -31,6 +31,34 @@ from restaurantBE.utils.responses import apiError, apiSuccess
 logger = logging.getLogger(__name__)
 
 
+class GuestListAPIView(generics.GenericAPIView):
+    """
+    Get guest list without pagination.
+    GET /api/guests/
+    GET /api/guest/
+    """
+
+    permission_classes = [IsAuthenticated, IsAdminOrEmployee]
+    serializer_class = GuestSerializer
+
+    def get(self, request, *args, **kwargs):
+        try:
+            guests = Guest.objects.all().order_by("-create_at")
+            serializer = self.get_serializer(guests, many=True)
+            return apiSuccess(
+                data=serializer.data,
+                msg=_("get_guests_success"),
+                status=status.HTTP_200_OK,
+            )
+        except Exception as e:
+            logger.error(f"Failed to get guests: {str(e)}")
+            return apiError(
+                str(e),
+                _("get_guests_failed"),
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+
 class GuestLoginAPIView(generics.GenericAPIView):
     """
     Guest Login (Creates New Guest Session)
