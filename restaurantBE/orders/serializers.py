@@ -125,8 +125,8 @@ class OrderUpdateStatusSerializer(serializers.Serializer):
         current_status = instance.status
 
         # Validate transition
-        if value not in ORDER_STATUS_TRANSITIONS.get(current_status, []):
-            raise ValidationError(_("invalid_status_transition"))
+        # if value not in ORDER_STATUS_TRANSITIONS.get(current_status, []):
+            # raise ValidationError(_("invalid_status_transition"))
 
         return value
 
@@ -184,8 +184,8 @@ class OrderUpdateSerializer(serializers.ModelSerializer):
         if value == OrderStatus.CANCELLED:
             raise ValidationError(_("cannot_update_to_canceled_status"))
 
-        if value not in ORDER_STATUS_TRANSITIONS.get(current_status, []):
-            raise ValidationError(_("invalid_status_transition"))
+        # if value not in ORDER_STATUS_TRANSITIONS.get(current_status, []):
+            # raise ValidationError(_("invalid_status_transition"))
 
         return value
 

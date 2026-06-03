@@ -251,7 +251,7 @@ class ChatView(APIView):
         ]
 
         # 5. Gọi RAG + LLM
-        lang = request.query_params.get("lang") or request.data.get("lang") or "vi"
+        lang = request.headers.get("language") or request.query_params.get("lang") or request.data.get("lang") or "vi"
         lang = str(lang).strip().lower()
         if lang not in ["en", "vi"]:
             lang = "vi"
