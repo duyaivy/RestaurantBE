@@ -40,19 +40,19 @@ class OrderItemStatus(models.TextChoices):
     CANCELLED = "CANCELLED", _("cancelled")
 
 
+ALL_ORDER_STATUSES = [
+    OrderStatus.PENDING,
+    OrderStatus.PREPARING,
+    OrderStatus.SERVED,
+    OrderStatus.CANCELLED,
+    OrderStatus.COMPLETED,
+]
+
 # Valid order status transitions
 ORDER_STATUS_TRANSITIONS = {
-    OrderStatus.PENDING: [
-        OrderStatus.PREPARING,
-        OrderStatus.CANCELLED,
-        OrderStatus.PENDING,
-    ],
-    OrderStatus.PREPARING: [
-        OrderStatus.SERVED,
-        OrderStatus.CANCELLED,
-        OrderStatus.PREPARING,
-    ],
-    OrderStatus.SERVED: [OrderStatus.COMPLETED, OrderStatus.SERVED],
-    OrderStatus.COMPLETED: [OrderStatus.COMPLETED],
-    OrderStatus.CANCELLED: [OrderStatus.CANCELLED],
+    OrderStatus.PENDING: ALL_ORDER_STATUSES,
+    OrderStatus.PREPARING: ALL_ORDER_STATUSES,
+    OrderStatus.SERVED: ALL_ORDER_STATUSES,
+    OrderStatus.COMPLETED: ALL_ORDER_STATUSES,
+    OrderStatus.CANCELLED: ALL_ORDER_STATUSES,
 }

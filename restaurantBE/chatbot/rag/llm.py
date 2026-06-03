@@ -454,7 +454,7 @@ class LLMService:
                 if role in {"user", "assistant"} and content:
                     messages.append({"role": role, "content": content})
 
-        prompt = self._build_user_prompt(user_message, context_text)
+        prompt = self._build_user_prompt(user_message, context_text, lang=lang)
         messages.append({"role": "user", "content": prompt})
 
         system_instruction = SYSTEM_PROMPT_EN if lang == "en" else SYSTEM_PROMPT_VI
@@ -477,8 +477,13 @@ class LLMService:
         return {"answer": answer, "suggest_items": suggest_items}
 
     @staticmethod
-    def _build_user_prompt(user_message: str, context_text: str) -> str:
+    def _build_user_prompt(user_message: str, context_text: str, lang: str = "vi") -> str:
         clean_context = (context_text or "").strip()
+        lang_instruction = (
+            "CRITICAL INSTRUCTION: You MUST translate and provide your final answer strictly in ENGLISH, regardless of the language of the CONTEXT or the USER QUESTION." 
+            if lang == "en" else 
+            "CRITICAL INSTRUCTION: You MUST translate and provide your final answer strictly in VIETNAMESE, regardless of the language of the CONTEXT or the USER QUESTION."
+        )
         if clean_context:
-            return f"CONTEXT:\n{clean_context}\n\nUSER QUESTION:\n{user_message}"
-        return f"CONTEXT:\nNo relevant context.\n\nUSER QUESTION:\n{user_message}"
+            return f"CONTEXT:\n{clean_context}\n\nUSER QUESTION:\n{user_message}\n\n{lang_instruction}"
+        return f"CONTEXT:\nNo relevant context.\n\nUSER QUESTION:\n{user_message}\n\n{lang_instruction}"
