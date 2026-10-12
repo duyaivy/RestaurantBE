@@ -1,6 +1,9 @@
 import hashlib
 import hmac
+import logging
 import urllib.parse
+
+logger = logging.getLogger(__name__)
 
 
 def hmacsha512(key, data):
@@ -67,13 +70,11 @@ class VNPAY:
                     hasData = str(key) + "=" + urllib.parse.quote_plus(str(val))
         hashValue = self.__hmacsha512(secret_key, hasData)
 
-        print(
-            "Validate debug, HashData:"
-            + hasData
-            + "\n HashValue:"
-            + hashValue
-            + "\nInputHash:"
-            + vnp_SecureHash
+        logger.debug(
+            "Validate debug, HashData:%s\n HashValue:%s\nInputHash:%s",
+            hasData,
+            hashValue,
+            vnp_SecureHash,
         )
 
         return vnp_SecureHash == hashValue

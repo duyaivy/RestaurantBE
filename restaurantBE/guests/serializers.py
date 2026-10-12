@@ -85,50 +85,74 @@ class GuestCreateAccountSerializer(serializers.Serializer):
         }
 
 
-class GuestLoginSerializer(GuestCreateAccountSerializer):
+class GuestLoginSerializer(serializers.Serializer):
     """
-    Guest Login Serializer (extends GuestCreateAccountSerializer)
-    Adds tableToken validation and JWT token generation
-    
-    Required fields:
-    - name: Guest name (inherited)
-    - tableNumber: Table number (inherited)
-    - tableToken: Token to verify table access (new)
+    Độc lập hoàn toàn. Chứa tất cả logic cần thiết để validate và đăng nhập guest.
+    Không kế thừa GuestCreateAccountSerializer để tránh vi phạm LSP.
     """
-    
+
+    name = serializers.CharField(required=True, max_length=100)
+    tableNumber = serializers.IntegerField(required=True)
     tableToken = serializers.CharField(required=True, max_length=255)
-    
+
+    def validate_name(self, value):
+        """Validate guest name"""
+        if not value or len(value.strip()) < 2:
+            raise serializers.ValidationError(_("name_too_short"))
+        return value.strip()
+
+    def validate_tableNumber(self, value):
+        """Validate table exists and is available"""
+        try:
+            table = Table.objects.get(number=value)
+            if table.status != TableStatus.AVAILABLE:
+                raise serializers.ValidationError(_('table_not_available'))
+        except ObjectDoesNotExist:
+            raise serializers.ValidationError(_('table_not_found'))
+        return value
+
     def validate_tableToken(self, value):
         """Validate table token is provided"""
         if not value or len(value.strip()) == 0:
             raise serializers.ValidationError(_("table_token_required"))
         return value.strip()
-    
+
+    def _create_guest(self, name, table_number):
+        """Private helper: tạo Guest và set table RESERVED."""
+        guest = Guest.objects.create(
+            name=name,
+            tableNumber_id=table_number
+        )
+        table = Table.objects.get(number=table_number)
+        table.status = TableStatus.RESERVED
+        table.save()
+        return guest
+
     def validate(self, attrs):
         """
-        Validate table token and create new guest session with JWT tokens
+        Validate token, tạo guest, generate JWT.
+        Return type nhất quán: {"refreshToken": str, "accessToken": str, "guest": Guest}
         """
         table_number = attrs.get('tableNumber')
         table_token = attrs.get('tableToken')
-        
+
         # Verify table exists and token is correct
         try:
             table = Table.objects.get(number=table_number)
         except ObjectDoesNotExist:
             raise serializers.ValidationError({'tableNumber': _('table_not_found')})
-        
-        # Verify table token
+
         if table.token != table_token:
             raise serializers.ValidationError({'tableToken': _('invalid_table_token')})
 
-        # Create new guest using parent method
-        guest = self.create_guest(attrs)
-        
+        name = attrs.get('name')
+        guest = self._create_guest(name, table_number)
+
         # Generate JWT tokens with custom claims
         refresh = RefreshToken()
         refresh['guest_id'] = guest.id
         refresh['role'] = Role.GUEST
-        
+
         return {
             'refreshToken': str(refresh),
             'accessToken': str(refresh.access_token),

@@ -27,6 +27,7 @@ from restaurantBE.guests.serializers import (
     GuestCreateAccountSerializer,
 )
 from restaurantBE.utils.responses import apiError, apiSuccess
+from restaurantBE.utils.token_utils import persist_tokens_to_outstanding
 
 logger = logging.getLogger(__name__)
 
@@ -104,48 +105,12 @@ class GuestLoginAPIView(generics.GenericAPIView):
             }
 
             # Save tokens to OutstandingToken for blacklist mechanism
-            try:
-
-                refresh_token_str = validated_data["refreshToken"]
-                access_token_str = validated_data["accessToken"]
-
-                # Save refresh token
-                if refresh_token_str:
-                    refresh_token = RefreshToken(refresh_token_str)
-                    jti_refresh = refresh_token["jti"]
-                    guest_id = refresh_token["guest_id"]
-
-                    if not OutstandingToken.objects.filter(jti=jti_refresh).exists():
-                        OutstandingToken.objects.create(
-                            user_id=guest_id,
-                            jti=jti_refresh,
-                            token=str(refresh_token),
-                            created_at=timezone.now(),
-                            expires_at=timezone.datetime.fromtimestamp(
-                                refresh_token["exp"], tz=timezone.utc
-                            ),
-                        )
-
-                # Save access token
-                if access_token_str:
-                    access_token = AccessToken(access_token_str)
-                    jti_access = access_token["jti"]
-                    guest_id = access_token["guest_id"]
-
-                    if not OutstandingToken.objects.filter(jti=jti_access).exists():
-                        OutstandingToken.objects.create(
-                            user_id=guest_id,
-                            jti=jti_access,
-                            token=str(access_token),
-                            created_at=timezone.now(),
-                            expires_at=timezone.datetime.fromtimestamp(
-                                access_token["exp"], tz=timezone.utc
-                            ),
-                        )
-            except Exception as e:
-                logger.warning(f"Failed to save outstanding token: {str(e)}")
-                # Silent failure - don't block login
-                pass
+            persist_tokens_to_outstanding(
+                refresh_token_str=validated_data.get("refreshToken"),
+                access_token_str=validated_data.get("accessToken"),
+                user_id=guest.id,
+                is_guest=True,
+            )
 
             return apiSuccess(
                 data=response_data,

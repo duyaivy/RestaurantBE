@@ -19,51 +19,66 @@ services:
         value: prod
       - key: SECRET_KEY
         generateValue: true
-      # Supabase PostgreSQL Connection
-      - key: DB_NAME
+
+      # Database (Supabase PostgreSQL Connection URL)
+      - key: DATABASE_URL
         sync: false
-      - key: DB_USERNAME
+
+      # Redis Cache & Socket.IO (Cloud Redis)
+      - key: REDIS_URL
         sync: false
-      - key: DB_PASSWORD
-        sync: false
-      - key: DB_HOST
-        sync: false
-      - key: DB_PORT
-        value: "6543"
+
+      # Hosts & URLs
       - key: ALLOWED_HOSTS
-        sync: false
-      - key: CORS_ALLOWED_ORIGINS
-        sync: false
+        value: ".onrender.com,localhost,127.0.0.1"
       - key: HOST
         sync: false
       - key: CLIENT_URL
         sync: false
-      # Chatbot (OpenRouter + local Chroma)
-      - key: OPENROUTER_API_KEY
+      - key: CORS_ALLOWED_ORIGINS
         sync: false
-      - key: CHATBOT_LLM_BASE_URL
-        value: "https://openrouter.ai/api/v1"
+
+      # Cloudinary Media Storage
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+
+      # Chatbot LLM (Groq / Gemini)
+      - key: CHATBOT_LLM_PROVIDER
+        value: "groq"
       - key: CHATBOT_LLM_MODEL
-        value: "nvidia/nemotron-3-super-120b-a12b:free"
+        value: "llama-3.1-8b-instant"
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
       - key: CHATBOT_LLM_TEMPERATURE
         value: "0.2"
+      - key: CHATBOT_LLM_MAX_TOKENS
+        value: "800"
       - key: CHATBOT_LLM_REASONING_ENABLED
         value: "false"
+
+      # Chatbot Embedding (Jina / Gemini / Local)
       - key: CHATBOT_EMBEDDING_PROVIDER
-        value: "gemini"
+        value: "jina"
       - key: CHATBOT_EMBEDDING_MODEL
-        value: "gemini-embedding-001"
+        value: "jina-embeddings-v3"
       - key: CHATBOT_EMBEDDING_DIMENSIONS
-        value: "768"
-      - key: CHATBOT_EMBEDDING_TIMEOUT_SECONDS
-        value: "30"
+        value: "1024"
       - key: CHATBOT_EMBEDDING_API_KEY
         sync: false
+      - key: CHATBOT_EMBEDDING_TIMEOUT_SECONDS
+        value: "15"
       - key: CHATBOT_CHROMA_DIR
         value: "/var/data/chroma"
       - key: CHATBOT_CHROMA_COLLECTION
         value: "restaurant_chatbot"
-      # Google Translation
+
+      # Google Translation (Optional)
       - key: GOOGLE_TRANSLATION_ENABLED
         value: "true"
       - key: GOOGLE_TRANSLATION_PROJECT_ID
@@ -72,7 +87,8 @@ services:
         value: "global"
       - key: GOOGLE_CREDENTIALS_JSON_BASE64
         sync: false
-      # VNPay
+
+      # VNPay Payment Gateway
       - key: VNPAY_TMN_CODE
         sync: false
       - key: VNPAY_HASH_SECRET

@@ -18,6 +18,7 @@ from django.utils.translation import gettext as _
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from restaurantBE.accounts.serializers.auth import RefreshTokenSerializer
 from restaurantBE.utils.responses import apiError, apiSuccess
+from restaurantBE.utils.token_utils import persist_tokens_to_outstanding
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.token_blacklist.models import (
     OutstandingToken,
@@ -89,48 +90,10 @@ class LoginAPIView(TokenObtainPairView):
 
         # Lưu CẢ access và refresh token vào OutstandingToken để blacklist mechanism hoạt động
         if response.status_code == 200:
-            try:
-                from rest_framework_simplejwt.tokens import AccessToken
-                from django.utils import timezone
-
-                refresh_token_str = response.data.get("refresh")
-                access_token_str = response.data.get("access")
-
-                # Lưu refresh token
-                if refresh_token_str:
-                    refresh_token = RefreshToken(refresh_token_str)
-                    jti_refresh = refresh_token["jti"]
-
-                    if not OutstandingToken.objects.filter(jti=jti_refresh).exists():
-                        OutstandingToken.objects.create(
-                            user_id=refresh_token["user_id"],
-                            jti=jti_refresh,
-                            token=str(refresh_token),
-                            created_at=timezone.now(),
-                            expires_at=timezone.datetime.fromtimestamp(
-                                refresh_token["exp"], tz=timezone.utc
-                            ),
-                        )
-
-                # Lưu access token (QUAN TRỌNG để logout hoạt động)
-                if access_token_str:
-                    access_token = AccessToken(access_token_str)
-                    jti_access = access_token["jti"]
-
-                    if not OutstandingToken.objects.filter(jti=jti_access).exists():
-                        OutstandingToken.objects.create(
-                            user_id=access_token["user_id"],
-                            jti=jti_access,
-                            token=str(access_token),
-                            created_at=timezone.now(),
-                            expires_at=timezone.datetime.fromtimestamp(
-                                access_token["exp"], tz=timezone.utc
-                            ),
-                        )
-
-            except Exception:
-                # Silent failure or minimal log if needed
-                pass
+            persist_tokens_to_outstanding(
+                refresh_token_str=response.data.get("refresh"),
+                access_token_str=response.data.get("access"),
+            )
 
         return apiSuccess(
             data=response.data, msg="login_success", status=response.status_code
