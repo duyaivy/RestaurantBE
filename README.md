@@ -1,6 +1,6 @@
 # Django REST framework template
 
-<p align="center">
+<p align="center"> 
   <a href="https://www.django-rest-framework.org/" target="blank"><img src="./docs/drf-logo.png" width="200" alt="drf Logo" /></a>
 </p>
 
@@ -87,3 +87,5 @@ Open browser and access `localhost:8000/docs` to view swagger documentation
 <p align="center">
   <a href="#" target="blank"><img src="./docs/swagger.png" width="80%" alt="Swagger docs" /></a>
 </p>
+
+### end
