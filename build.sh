@@ -23,4 +23,4 @@ else
 fi
 python manage.py collectstatic --no-input
 
-uvicorn restaurantBE.asgi:application --host 0.0.0.0 --port ${PORT:-10000}
+exec uvicorn restaurantBE.asgi:application --host 0.0.0.0 --port ${PORT:-10000}
