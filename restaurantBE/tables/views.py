@@ -5,7 +5,7 @@ from restaurantBE.utils.responses import apiError, apiSuccess
 from rest_framework import status
 from restaurantBE.utils.permissions import IsAdminOrEmployee
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.generics import RetrieveAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from restaurantBE.tables.models import Table
 from restaurantBE.tables.serializers import TableSerializer
 import logging
@@ -14,7 +14,7 @@ from django.utils.translation import gettext as _
 logger = logging.getLogger(__name__)
 
 
-class TableRetrieveListAPIView(RetrieveAPIView):
+class TableRetrieveListAPIView(ListCreateAPIView):
     queryset = Table.objects.all()
 
     def get_authenticators(self):
@@ -27,8 +27,6 @@ class TableRetrieveListAPIView(RetrieveAPIView):
             return []
         return [IsAuthenticated(), IsAdminOrEmployee()]
 
-    lookup_field = "number"
-    lookup_url_kwarg = "number"
     serializer_class = TableSerializer
 
     def get(self, request, *args, **kwargs):

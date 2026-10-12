@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import os
 import re
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Protocol, runtime_checkable
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -179,6 +179,20 @@ def clean_and_parse_llm_response(raw_content: str) -> Dict[str, Any]:
 # LLM Backends
 # ---------------------------------------------------------------------------
 
+@runtime_checkable
+class LLMBackendProtocol(Protocol):
+    """Interface mà tất cả LLM backends phải implement."""
+
+    def generate(
+        self,
+        messages: list[dict],
+        system_instruction: str,
+        response_schema: type = None,
+        max_tokens: int | None = None,
+    ) -> str:
+        ...
+
+
 class GeminiLLMBackend:
     """Google Gemini backend using google-genai SDK."""
 
@@ -198,7 +212,7 @@ class GeminiLLMBackend:
         self,
         messages: List[Dict[str, str]],
         system_instruction: str,
-        response_schema: type,
+        response_schema: type = None,
         max_tokens: Optional[int] = None,
     ) -> str:
         from google.genai import types
@@ -348,6 +362,21 @@ class GroqLLMBackend:
 
 
 # ---------------------------------------------------------------------------
+# LLM Backend Registry
+# ---------------------------------------------------------------------------
+
+_BACKEND_REGISTRY: dict[str, type] = {
+    "gemini": GeminiLLMBackend,
+    "groq": GroqLLMBackend,
+}
+
+
+def register_llm_backend(name: str, cls: type) -> None:
+    """Public API để đăng ký backend mới mà không cần sửa LLMService."""
+    _BACKEND_REGISTRY[name.lower()] = cls
+
+
+# ---------------------------------------------------------------------------
 # LLM Service (multi-provider orchestrator)
 # ---------------------------------------------------------------------------
 
@@ -406,6 +435,13 @@ class LLMService:
         )
 
         # Initialize backend
+        backend_cls = _BACKEND_REGISTRY.get(self.provider)
+        if not backend_cls:
+            raise ImproperlyConfigured(
+                f"Unknown LLM provider: '{self.provider}'. "
+                f"Available: {list(_BACKEND_REGISTRY.keys())}"
+            )
+
         if self.provider == "groq":
             resolved_key = (
                 api_key
@@ -414,14 +450,7 @@ class LLMService:
             )
             if not resolved_key:
                 raise ImproperlyConfigured("Missing GROQ_API_KEY for Groq LLM provider.")
-            self._backend = GroqLLMBackend(
-                api_key=resolved_key,
-                model=self.model,
-                temperature=self.temperature,
-                max_tokens=self.max_tokens,
-            )
-        else:
-            # Default: Gemini
+        elif self.provider == "gemini":
             resolved_key = (
                 api_key
                 or getattr(settings, "GEMINI_API_KEY", None)
@@ -429,12 +458,19 @@ class LLMService:
             )
             if not resolved_key:
                 raise ImproperlyConfigured("Missing GEMINI_API_KEY for Gemini LLM provider.")
-            self._backend = GeminiLLMBackend(
-                api_key=resolved_key,
-                model=self.model,
-                temperature=self.temperature,
-                max_tokens=self.max_tokens,
+        else:
+            resolved_key = (
+                api_key
+                or getattr(settings, f"{self.provider.upper()}_API_KEY", None)
+                or os.getenv(f"{self.provider.upper()}_API_KEY")
             )
+
+        self._backend = backend_cls(
+            api_key=resolved_key,
+            model=self.model,
+            temperature=self.temperature,
+            max_tokens=self.max_tokens,
+        )
 
     def generate(
         self,

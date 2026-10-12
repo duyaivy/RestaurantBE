@@ -17,10 +17,8 @@ from restaurantBE.utils.responses import apiError
 from restaurantBE.utils.responses import apiSuccess
 from restaurantBE.constants import OrderItemStatus
 from rest_framework.exceptions import ValidationError
-from restaurantBE.constants import TableStatus
-from restaurantBE.tables.models import Table
 from restaurantBE.guests.models import Guest
-from restaurantBE.dishes.models import DishSnapshot, Dish
+from restaurantBE.orders.services import OrderService
 from restaurantBE.constants import PaymentMethod
 from rest_framework.permissions import IsAuthenticated
 from restaurantBE.utils.permissions import IsGuest
@@ -107,66 +105,25 @@ class OrderCreateAPIView(CreateAPIView):
 
     def post(self, request):
         try:
-            with transaction.atomic():
-                serializer = self.get_serializer(data=request.data)
-                serializer.is_valid(raise_exception=True)
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
 
-                table_id = serializer.validated_data["table_number_id"]
-                items = serializer.validated_data["items"]
+            table_id = serializer.validated_data["table_number_id"]
+            items = serializer.validated_data["items"]
 
-                # update status
-                table = Table.objects.select_for_update().get(
-                    number=table_id
-                )  # lock table
-                table.status = TableStatus.RESERVED
-                table.save()
+            order = OrderService.create_order(
+                guest=request.user,
+                table_id=table_id,
+                items=items,
+                order_handler=None,
+            )
 
-                # check order item
-                dish_ids = [item["dish_id"] for item in items]
-                dishes = Dish.objects.filter(id__in=dish_ids)
-                if dishes.count() != len(dish_ids):
-                    raise ValidationError(_("dish_not_found"))
-                # create order
-
-                order = Order.objects.create(
-                    guest_id=request.user,
-                    table_number_id=table_id,
-                    order_handler_id=None,
-                    payment_method=PaymentMethod.CASH,
-                    total_amount=0,
-                )
-                total_amount = 0
-                # create dish snapshot and order item
-                for item in items:
-                    dish = dishes.get(id=item["dish_id"])
-                    # create dish snapshot
-                    dish_snapshot = DishSnapshot.objects.create(
-                        dish_id=dish,
-                        name=dish.name,
-                        price=dish.price,
-                        description=dish.description,
-                        image=dish.image,
-                    )
-                    # create order item
-                    amount = dish_snapshot.price * item["quantity"]
-                    OrderItem.objects.create(
-                        order_id=order,
-                        dish_snapshot_id=dish_snapshot,
-                        quantity=item["quantity"],
-                        note=item["note"],
-                        item_status=OrderItemStatus.ORDERED,
-                        total_amount=amount,
-                    )
-                    total_amount += amount
-                # update total amount
-                order.total_amount = total_amount
-                order.save()
-                response_serializer = OrderSerializer(order)
-                return apiSuccess(
-                    response_serializer.data,
-                    _("order_created"),
-                    status.HTTP_201_CREATED,
-                )
+            response_serializer = OrderSerializer(order)
+            return apiSuccess(
+                response_serializer.data,
+                _("order_created"),
+                status.HTTP_201_CREATED,
+            )
         except ValidationError:
             raise
         except Exception as e:
@@ -183,75 +140,28 @@ class OrderStaffCreateAPIView(CreateAPIView):
 
     def post(self, request):
         try:
-            with transaction.atomic():
-                serializer = self.get_serializer(data=request.data)
-                serializer.is_valid(raise_exception=True)
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
 
-                guest_id = serializer.validated_data["guest_id"]
-                table_id = serializer.validated_data["table_number_id"]
-                items = serializer.validated_data["items"]
+            guest_id = serializer.validated_data["guest_id"]
+            table_id = serializer.validated_data["table_number_id"]
+            items = serializer.validated_data["items"]
 
-                # Get guest instance
-                guest = Guest.objects.get(id=guest_id)
+            guest = Guest.objects.get(id=guest_id)
 
-                # Update table status
-                table = Table.objects.select_for_update().get(
-                    number=table_id
-                )  # lock table
-                table.status = TableStatus.RESERVED
-                table.save()
+            order = OrderService.create_order(
+                guest=guest,
+                table_id=table_id,
+                items=items,
+                order_handler=request.user,
+            )
 
-                # Check order items
-                dish_ids = [item["dish_id"] for item in items]
-                dishes = Dish.objects.filter(id__in=dish_ids)
-                if dishes.count() != len(dish_ids):
-                    raise ValidationError(_("dish_not_found"))
-
-                # Create order with staff as order_handler
-                order = Order.objects.create(
-                    guest_id=guest,
-                    table_number_id=table_id,
-                    order_handler_id=request.user,  # Staff creating the order
-                    payment_method=PaymentMethod.CASH,
-                    total_amount=0,
-                )
-
-                total_amount = 0
-                # Create dish snapshot and order items
-                for item in items:
-                    dish = dishes.get(id=item["dish_id"])
-
-                    # Create dish snapshot
-                    dish_snapshot = DishSnapshot.objects.create(
-                        dish_id=dish,
-                        name=dish.name,
-                        price=dish.price,
-                        description=dish.description,
-                        image=dish.image,
-                    )
-
-                    # Create order item
-                    amount = dish_snapshot.price * item["quantity"]
-                    OrderItem.objects.create(
-                        order_id=order,
-                        dish_snapshot_id=dish_snapshot,
-                        quantity=item["quantity"],
-                        note=item.get("note", ""),
-                        item_status=OrderItemStatus.ORDERED,
-                        total_amount=amount,
-                    )
-                    total_amount += amount
-
-                # Update total amount
-                order.total_amount = total_amount
-                order.save()
-
-                response_serializer = OrderSerializer(order)
-                return apiSuccess(
-                    response_serializer.data,
-                    _("order_created"),
-                    status.HTTP_201_CREATED,
-                )
+            response_serializer = OrderSerializer(order)
+            return apiSuccess(
+                response_serializer.data,
+                _("order_created"),
+                status.HTTP_201_CREATED,
+            )
         except ValidationError:
             raise
         except Guest.DoesNotExist:
@@ -331,22 +241,11 @@ class OrderUpdateStatusAPIView(GenericAPIView):
             )
 
             if serializer.is_valid():
-                instance.status = serializer.validated_data["status"]
-                instance.save()
-                if instance.status == OrderStatus.COMPLETED:
-                    table = Table.objects.get(number=instance.table_number_id)
-                    table.status = TableStatus.AVAILABLE
-                    table.save()
+                instance = OrderService.update_order_status(
+                    order=instance,
+                    new_status=serializer.validated_data["status"],
+                )
                 response_serializer = OrderSerializer(instance)
-                if instance.status == OrderStatus.COMPLETED:
-                    # Nếu order được cập nhật thành COMPLETED, cập nhật status của bàn về AVAILABLE
-                    table = Table.objects.filter(
-                        number=instance.table_number_id
-                    ).first()
-                    if table:
-                        table.status = TableStatus.AVAILABLE
-                        table.save()
-
                 return apiSuccess(
                     response_serializer.data, msg=_("update_order_status_success")
                 )
@@ -472,11 +371,11 @@ class OrderUpdateItemsAPIView(GenericAPIView):
                 cancel_item_ids = validated_data.get("cancel_item_ids", [])
 
                 # Xử lý cancel items
+                cancelled_count = 0
                 if cancel_item_ids:
-                    cancelled_count = OrderItem.objects.filter(
-                        id__in=cancel_item_ids, order_id=order
-                    ).update(item_status=OrderItemStatus.CANCELLED)
-
+                    cancelled_count = OrderService.cancel_order_items(
+                        order, cancel_item_ids
+                    )
                     logger.info(
                         f"Cancelled {cancelled_count} items for order {order.id}"
                     )
@@ -484,28 +383,9 @@ class OrderUpdateItemsAPIView(GenericAPIView):
                 # Xử lý update items
                 updated_items = []
                 if update_items:
-                    for item_data in update_items:
-                        order_item = OrderItem.objects.select_for_update().get(
-                            id=item_data["order_item_id"], order_id=order
-                        )
-
-                        # Update quantity, note, and item_status
-                        if "quantity" in item_data:
-                            order_item.quantity = item_data["quantity"]
-                            # Recalculate total_amount
-                            order_item.total_amount = (
-                                order_item.dish_snapshot_id.price * order_item.quantity
-                            )
-                        
-                        if "note" in item_data:
-                            order_item.note = item_data["note"]
-
-                        if "item_status" in item_data:
-                            order_item.item_status = item_data["item_status"]
-
-                        order_item.save()
-                        updated_items.append(order_item)
-
+                    updated_items = OrderService.update_order_items(
+                        order, update_items
+                    )
                     logger.info(
                         f"Updated {len(updated_items)} items for order {order.id}"
                     )
@@ -513,53 +393,13 @@ class OrderUpdateItemsAPIView(GenericAPIView):
                 # Xử lý add items
                 added_items = []
                 if add_items:
-                    dish_ids = [item["dish_id"] for item in add_items]
-                    dishes = Dish.objects.filter(id__in=dish_ids)
-
-                    # Tạo dict để lookup nhanh
-                    dishes_dict = {dish.id: dish for dish in dishes}
-
-                    for item_data in add_items:
-                        dish = dishes_dict.get(item_data["dish_id"])
-                        if not dish:
-                            continue
-
-                        # Tạo DishSnapshot
-                        dish_snapshot = DishSnapshot.objects.create(
-                            dish_id=dish,
-                            name=dish.name,
-                            price=dish.price,
-                            description=dish.description,
-                            image=dish.image,
-                        )
-
-                        # Tạo OrderItem
-                        quantity = item_data["quantity"]
-                        total_amount = dish_snapshot.price * quantity
-
-                        order_item = OrderItem.objects.create(
-                            order_id=order,
-                            dish_snapshot_id=dish_snapshot,
-                            quantity=quantity,
-                            note=item_data.get("note", ""),
-                            item_status=OrderItemStatus.ORDERED,
-                            total_amount=total_amount,
-                        )
-                        added_items.append(order_item)
-
+                    added_items = OrderService.add_items_to_order(
+                        order, add_items
+                    )
                     logger.info(f"Added {len(added_items)} items to order {order.id}")
 
                 # Recalculate total_amount của order
-                # Chỉ tính các items chưa bị cancel
-                total_amount = (
-                    OrderItem.objects.filter(order_id=order)
-                    .exclude(item_status=OrderItemStatus.CANCELLED)
-                    .aggregate(total=models.Sum("total_amount"))["total"]
-                    or 0
-                )
-
-                order.total_amount = total_amount
-                order.save()
+                OrderService.recalculate_total(order)
 
                 # Prepare response
                 order_serializer = OrderSerializer(order)
@@ -737,9 +577,12 @@ class GuestOrderListAPIView(GenericAPIView):
 
     def get(self, request, guest_id, *args, **kwargs):
         try:
-            # Query tất cả orders của guest này (có thể thêm IsGuest custom check nếu cần)
+            if isinstance(request.user, Guest):
+                if request.user.id != guest_id:
+                    return apiError(None, _("permission_denied"), status=403)
+            # Nếu là Account (staff) → được phép xem
             orders = Order.objects.filter(guest_id=guest_id).order_by("-created_at")
-            
+
             result = []
             for order in orders:
                 order_data = OrderSerializer(order).data
@@ -752,4 +595,5 @@ class GuestOrderListAPIView(GenericAPIView):
             return apiError(
                 str(e), msg=_("get_guest_orders_error"), status=status.HTTP_400_BAD_REQUEST
             )
+
 

@@ -21,19 +21,32 @@ HOST = os.getenv("HOST", "http://localhost:8000/")
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 
-# Replace the DATABASES section of your settings.py with this
-database_url = os.getenv("DATABASE_URL") or ""
-tmpPostgres = urlparse(database_url)
+database_url = os.getenv("DATABASE_URL")
+if database_url:
+    tmpPostgres = urlparse(database_url)
+    db_name = tmpPostgres.path.replace("/", "") if tmpPostgres.path else os.getenv("DB_NAME", "restaurant")
+    db_user = tmpPostgres.username or os.getenv("DB_USERNAME", "postgres")
+    db_password = tmpPostgres.password or os.getenv("DB_PASSWORD", "postgres")
+    db_host = tmpPostgres.hostname or os.getenv("DB_HOST", "localhost")
+    db_port = tmpPostgres.port or int(os.getenv("DB_PORT", 5432))
+    db_options = dict(parse_qsl(tmpPostgres.query)) if tmpPostgres.query else {}
+else:
+    db_name = os.getenv("DB_NAME", "restaurant")
+    db_user = os.getenv("DB_USERNAME", "postgres")
+    db_password = os.getenv("DB_PASSWORD", "postgres")
+    db_host = os.getenv("DB_HOST", "localhost")
+    db_port = int(os.getenv("DB_PORT", 5432))
+    db_options = {}
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": tmpPostgres.path.replace("/", "") if tmpPostgres.path else "",
-        "USER": tmpPostgres.username,
-        "PASSWORD": tmpPostgres.password,
-        "HOST": tmpPostgres.hostname,
-        "PORT": 5432,
-        "OPTIONS": dict(parse_qsl(tmpPostgres.query)) if tmpPostgres.query else {},
+        "NAME": db_name,
+        "USER": db_user,
+        "PASSWORD": db_password,
+        "HOST": db_host,
+        "PORT": db_port,
+        "OPTIONS": db_options,
     }
 }
 

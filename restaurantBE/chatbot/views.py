@@ -24,8 +24,7 @@ Auth:
 from __future__ import annotations
 
 import logging
-import re
-from typing import List, Optional, Tuple
+from typing import Optional
 
 from rest_framework import status
 from rest_framework.permissions import AllowAny
@@ -33,153 +32,18 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from restaurantBE.accounts.models import Account
-from restaurantBE.guests.models import Guest
-
 from .models import (
     Conversation,
     ConversationStatus,
-    Message,
     MessageRole,
     MessageStatus,
 )
 from .serializers import (
     ChatMessageSerializer,
 )
+from .services import ConversationService
 
 logger = logging.getLogger(__name__)
-
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-
-def _get_or_create_conversation(
-    request: Request,
-    conversation_id: Optional[int],
-) -> Conversation:
-    """
-    Lấy conversation hiện tại hoặc tạo mới.
-    Hỗ trợ cả user đã login lẫn guest (session).
-    """
-    account, guest, session_key = _resolve_conversation_owner(request)
-
-    if conversation_id:
-        # Tìm conversation hiện có, thuộc về user/session này
-        qs = Conversation.objects.filter(
-            id=conversation_id,
-            status=ConversationStatus.ACTIVE,
-        )
-        if account:
-            qs = qs.filter(account=account)
-        elif guest:
-            qs = qs.filter(guest=guest)
-        else:
-            qs = qs.filter(session_key=session_key)
-
-        conversation = qs.first()
-        if conversation:
-            return conversation
-
-    # Không truyền conversation_id: ưu tiên resume cuộc trò chuyện gần nhất
-    latest_qs = Conversation.objects.filter(status=ConversationStatus.ACTIVE)
-    if account:
-        latest_qs = latest_qs.filter(account=account)
-    elif guest:
-        latest_qs = latest_qs.filter(guest=guest)
-    else:
-        latest_qs = latest_qs.filter(session_key=session_key)
-
-    latest = latest_qs.order_by("-last_message_at", "-created_at").first()
-    if latest:
-        return latest
-
-    # Tạo mới
-    return Conversation.objects.create(
-        account=account,
-        guest=guest,
-        session_key=session_key,
-        status=ConversationStatus.ACTIVE,
-    )
-
-
-def _resolve_conversation_owner(
-    request: Request,
-) -> Tuple[Optional[Account], Optional[Guest], Optional[str]]:
-    """
-    Chuẩn hoá owner của conversation.
-    - Account token  -> gắn account
-    - Guest token    -> gắn guest
-    - Anonymous      -> gắn session_key
-    """
-    user = getattr(request, "user", None)
-    account: Optional[Account] = None
-    guest: Optional[Guest] = None
-    session_key: Optional[str] = None
-
-    if isinstance(user, Guest):
-        guest = user
-    elif isinstance(user, Account):
-        account = user
-    else:
-        if not request.session.session_key:
-            request.session.create()
-        session_key = request.session.session_key
-
-    return account, guest, session_key
-
-
-def _build_history(conversation: Conversation, limit: int = 12) -> List[dict]:
-    """
-    Lấy lịch sử chat gần nhất để đưa vào LLM context.
-    Giới hạn 12 message (6 lượt) để tiết kiệm token.
-    """
-    messages = conversation.messages.filter(status=MessageStatus.SUCCESS).order_by(
-        "-sequence"
-    )[:limit]
-    history = []
-    for msg in reversed(list(messages)):
-        if msg.role == MessageRole.ASSISTANT and _looks_like_reasoning_leak(
-            msg.content
-        ):
-            continue
-        role = "user" if msg.role == MessageRole.USER else "assistant"
-        history.append({"role": role, "content": msg.content})
-    return history
-
-
-def _looks_like_reasoning_leak(content: str) -> bool:
-    text = (content or "").strip().lower()
-    if not text:
-        return False
-
-    patterns = [
-        r"\bokay,?\s+t[oô]i\s+c[aầ]n\b",
-        r"\bt[oô]i\s+s[eẽ]\s+ki[eể]m\s+tra\b",
-        r"\bph[aầ]n\s+th[uứ]\b",
-        r"\bqu[eé]t\s+l[aạ]i\b",
-    ]
-    if any(re.search(pattern, text) for pattern in patterns):
-        return True
-
-    return len(re.findall(r"(?m)^\s*\d+\.\s", content)) >= 3
-
-
-def _save_message(
-    conversation: Conversation,
-    role: str,
-    content: str,
-    message_status: str = MessageStatus.SUCCESS,
-    error_message: str = "",
-) -> Message:
-    return Message.objects.create(
-        conversation=conversation,
-        role=role,
-        content=content,
-        status=message_status,
-        error_message=error_message,
-    )
 
 
 # ---------------------------------------------------------------------------
@@ -232,17 +96,17 @@ class ChatView(APIView):
         conversation_id: Optional[int] = validated.get("conversation_id")
 
         # 2. Lấy / tạo conversation
-        conversation = _get_or_create_conversation(request, conversation_id)
+        conversation = ConversationService.get_or_create_conversation(request, conversation_id)
 
         # 3. Lưu message user
-        _save_message(
+        ConversationService.save_message(
             conversation=conversation,
             role=MessageRole.USER,
             content=user_message,
         )
 
         # 4. Lấy lịch sử để đưa vào LLM
-        history = _build_history(conversation, limit=12)
+        history = ConversationService.build_history(conversation, limit=12)
         # Bỏ message vừa lưu ra khỏi history (chưa có reply)
         history = [
             h
@@ -268,22 +132,22 @@ class ChatView(APIView):
             items: list = result.get("items", [])
 
             # 6. Lưu message bot
-            _save_message(
+            ConversationService.save_message(
                 conversation=conversation,
                 role=MessageRole.ASSISTANT,
                 content=answer,
-                message_status=MessageStatus.SUCCESS,
+                status=MessageStatus.SUCCESS,
             )
 
         except Exception as exc:
             logger.exception("[ChatView] Lỗi khi xử lý chat: %s", exc)
             error_text = "Xin lỗi, hệ thống đang gặp sự cố. Vui lòng thử lại sau."
-            _save_message(
+            ConversationService.save_message(
                 conversation=conversation,
                 role=MessageRole.ASSISTANT,
                 content=error_text,
-                message_status=MessageStatus.ERROR,
-                error_message=str(exc),
+                status=MessageStatus.ERROR,
+                error=str(exc),
             )
             return Response(
                 {
@@ -315,7 +179,7 @@ class ConversationListView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request: Request) -> Response:
-        account, guest, session_key = _resolve_conversation_owner(request)
+        account, guest, session_key = ConversationService.resolve_owner(request)
 
         if account:
             qs = Conversation.objects.filter(
@@ -358,7 +222,7 @@ class ConversationDetailView(APIView):
     permission_classes = [AllowAny]
 
     def _get_conversation(self, request: Request, pk: int) -> Optional[Conversation]:
-        account, guest, session_key = _resolve_conversation_owner(request)
+        account, guest, session_key = ConversationService.resolve_owner(request)
         qs = Conversation.objects.filter(pk=pk)
         if account:
             qs = qs.filter(account=account)

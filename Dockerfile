@@ -2,12 +2,14 @@ FROM python:3.11-slim
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    DJANGO_SETTINGS_MODULE=restaurantBE.settings.production
+    PORT=8000
 
-# System dependencies for psycopg2, Pillow, etc.
+# System dependencies for psycopg2, Pillow, gettext, curl
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     libpq-dev \
+    curl \
+    gettext \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -18,9 +20,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy project
 COPY . .
-
-# Collect static files
-RUN python manage.py collectstatic --noinput 2>/dev/null || true
 
 # Make entrypoint executable
 RUN chmod +x docker-entrypoint.sh
