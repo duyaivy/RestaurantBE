@@ -1,6 +1,17 @@
 #!/bin/bash
 set -euo pipefail
 
+export DJANGO_SETTINGS_MODULE="${DJANGO_SETTINGS_MODULE:-restaurantBE.settings.production}"
+export ENV="${ENV:-prod}"
+
+if [ "$#" -gt 0 ]; then
+    exec "$@"
+fi
+
+if [ -n "${CHATBOT_CHROMA_DIR:-}" ]; then
+    mkdir -p "$CHATBOT_CHROMA_DIR"
+fi
+
 # Decode Google credentials from base64 if provided
 if [ -n "${GOOGLE_CREDENTIALS_JSON_BASE64:-}" ]; then
     GCP_CREDENTIALS_PATH="/tmp/gcp-sa.json"
@@ -14,7 +25,6 @@ fi
 echo "[Entrypoint] Checking database readiness..."
 python - << 'EOF'
 import os
-import sys
 import time
 from urllib.parse import urlparse
 
@@ -57,11 +67,12 @@ if command -v msgfmt > /dev/null 2>&1; then
 fi
 
 echo "[Entrypoint] Collecting static files..."
-python manage.py collectstatic --noinput 2>/dev/null || true
+python manage.py collectstatic --noinput
 
+LOG_LEVEL="${LOG_LEVEL:-info}"
 echo "[Entrypoint] Starting server on port ${PORT:-8000}..."
 exec uvicorn restaurantBE.asgi:application \
     --host 0.0.0.0 \
     --port "${PORT:-8000}" \
-    --workers "${WEB_CONCURRENCY:-2}" \
-    --log-level "${LOG_LEVEL:-info}"
+    --workers "${WEB_CONCURRENCY:-1}" \
+    --log-level "${LOG_LEVEL,,}"
