@@ -282,6 +282,27 @@ class GroqLLMBackend:
         self.max_tokens = max_tokens
         logger.info("GroqLLMBackend initialized with model='%s'.", model)
 
+    def _read_response(self, resp) -> str:
+        import requests
+
+        try:
+            resp.raise_for_status()
+        except requests.exceptions.HTTPError as exc:
+            try:
+                error = resp.json().get("error", {})
+                detail = error.get("message", "Request rejected")
+                code = error.get("code") or error.get("type") or "http_error"
+            except (ValueError, AttributeError):
+                detail, code = "Request rejected", "http_error"
+            detail = str(detail)
+            if self.api_key:
+                detail = detail.replace(self.api_key, "[REDACTED]")
+            raise RuntimeError(
+                f"Groq HTTP {resp.status_code} for model '{self.model}' ({code}): {detail[:500]}"
+            ) from exc
+        data = resp.json()
+        return data["choices"][0]["message"]["content"].strip()
+
     def generate(
         self,
         messages: List[Dict[str, str]],
@@ -335,30 +356,26 @@ class GroqLLMBackend:
                     delay *= 2.0
                     continue
 
-                if resp.status_code in {500, 502, 503}:
+                if resp.status_code in {500, 502, 503, 504}:
                     logger.warning("Groq server error %d. Retrying in %.2fs (attempt %d/5)...", resp.status_code, delay, attempt + 1)
                     time.sleep(delay)
                     delay *= 2.0
                     continue
 
-                resp.raise_for_status()
-                data = resp.json()
-                return data["choices"][0]["message"]["content"].strip()
+                return self._read_response(resp)
 
             except requests.exceptions.Timeout:
                 logger.warning("Groq timeout. Retrying in %.2fs (attempt %d/5)...", delay, attempt + 1)
                 time.sleep(delay)
                 delay *= 2.0
-            except requests.exceptions.RequestException as exc:
+            except requests.exceptions.ConnectionError as exc:
                 logger.warning("Groq request error (%s). Retrying in %.2fs (attempt %d/5)...", exc, delay, attempt + 1)
                 time.sleep(delay)
                 delay *= 2.0
 
         # Final attempt
         resp = requests.post(self.API_URL, headers=headers, json=payload, timeout=60)
-        resp.raise_for_status()
-        data = resp.json()
-        return data["choices"][0]["message"]["content"].strip()
+        return self._read_response(resp)
 
 
 # ---------------------------------------------------------------------------
@@ -382,7 +399,7 @@ def register_llm_backend(name: str, cls: type) -> None:
 
 _PROVIDER_DEFAULT_MODELS = {
     "gemini": "gemini-2.5-flash-lite",
-    "groq": "llama-3.3-70b-versatile",
+    "groq": "openai/gpt-oss-20b",
 }
 
 

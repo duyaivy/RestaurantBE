@@ -104,8 +104,38 @@ Workflow push image đã test với tag `release` và tag theo commit, lấy dig
    curl --fail https://TEN-SERVICE.onrender.com/health/
    ```
 
-   Kết quả cần có `"status": "ok"` và `"db": "ok"`. Endpoint hiện có thể trả HTTP 200 dù db báo error, nên đọc cả nội dung JSON.
+   Kết quả cần có `"status": "ok"`, `"db": "ok"`, `"redis": "ok"` và `"chroma_storage": "ok"`. Endpoint trả 503 nếu một dependency lỗi.
 3. Kiểm tra API có xác thực, Socket.IO/Redis, upload Cloudinary, chatbot và luồng VNPay sandbox theo cấu hình của bạn. Không thực hiện giao dịch thật để test deploy.
 4. Nếu đã chuyển dữ liệu Chroma, thử đọc dữ liệu cũ. Redeploy một lần nữa và kiểm tra dữ liệu vẫn còn để xác nhận mount/path đúng.
 
 Khi cần quay lại: service đổi trực tiếp có thể đổi Source về repository/branch Python và khôi phục commands đã lưu. Với service mới, có thể chuyển frontend/domain về service cũ. Các thao tác đổi nguồn không rollback migration PostgreSQL; cần xem xét migration riêng khi đổi phiên bản code.
+
+## Nếu health check trả 400 sau khi đổi sang image
+
+Nếu log đã có `Uvicorn running on http://0.0.0.0:10000` nhưng `/health/` trả 400, kiểm tra `ALLOWED_HOSTS` trước. Giá trị env chỉ gồm hostname, phân cách bằng dấu phẩy; không có `https://`, đường dẫn `/`, dấu ngoặc danh sách hoặc dấu nháy được nhập trực tiếp trong Dashboard.
+
+```dotenv
+ALLOWED_HOSTS=.onrender.com,localhost,127.0.0.1
+```
+
+Nếu có custom domain BE, thêm domain đó vào danh sách, ví dụ `api.example.com`. Render gửi health check bằng custom domain đã xác minh hoặc hostname service; địa chỉ `10.x` trong access log là IP của client gửi probe, không phải hostname cần thêm vào ALLOWED_HOSTS. [Render health checks](https://render.com/docs/health-checks)
+
+Sau khi sửa env, lưu và redeploy service. Image đã publish trước khi sửa code vẫn cần env đúng. Settings production mới sẽ bỏ khoảng trắng, bỏ phần tử rỗng và tự thêm `RENDER_EXTERNAL_HOSTNAME` do Render cấp, cùng localhost/127.0.0.1; custom domain vẫn cần khai báo riêng. Muốn dùng sửa code này cần push lên `release` để build/publish/deploy image mới.
+
+`HOST` là URL đầy đủ dùng cho schema/API, không thay thế `ALLOWED_HOSTS`. Cảnh báo `dishes` có model changes chưa có migration và thông báo ASGI lifespan không phải nguyên nhân của health check 400.
+
+## Đọc log health check trên Render
+
+Đặt `LOG_LEVEL=info`, deploy image mới, rồi mở Logs của service. Mỗi health check có thời gian, logger, Host, HTTP status, trạng thái từng dependency và latency:
+
+```text
+INFO [restaurantBE.health] Health check: method=GET host=my-api.onrender.com status=200 db=ok redis=ok chroma_storage=ok elapsed_ms=21.3
+ERROR [restaurantBE.health] Health check failed: component=redis exception=ConnectionError reason=Connection refused elapsed_ms=3.1
+ERROR [restaurantBE.health] Health check: method=GET host=my-api.onrender.com status=503 db=ok redis=error chroma_storage=ok elapsed_ms=24.0
+```
+
+`db`: thực hiện SELECT 1 để phát hiện cả connection cũ đã đứt. `redis`: PING với timeout 3 giây cho connect/read và không retry trong probe. `chroma_storage`: ghi/xóa file tạm ở CHATBOT_CHROMA_DIR để phát hiện không có quyền ghi hoặc đầy disk. Kiểm tra storage không đọc index hoặc gọi model API, và không chứng minh disk persistent đã được gắn. PostgreSQL connect_timeout mặc định production là 5 giây, trừ khi DATABASE_URL đã khai báo khác.
+
+Health trả 200 khi tất cả thành công, 503 nếu DB/Redis/storage lỗi. JSON chỉ chứa trạng thái, không trả exception/credentials ra public; lỗi cụ thể nằm trong log với exception type và message đã che secrets. Health endpoint không kiểm tra quota/availability của Groq/Jina, vì gọi AI API liên tục từ health check sẽ tiêu tốn quota.
+
+Với 400, tìm logger `django.security.DisallowedHost`: Django từ chối Host trước khi health view chạy, nên không có dòng Health check của request đó. Cấu hình production mới ghi cả lỗi này ra console. Không cần bật DEBUG để xem lỗi.
