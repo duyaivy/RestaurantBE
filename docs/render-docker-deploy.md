@@ -68,3 +68,18 @@ CI chạy shell syntax, lint test, build, `manage.py check`, `collectstatic`, im
 Docker cài PyTorch từ CPU wheel index để tránh kéo CUDA lên Render. Requirements giới hạn Transformers/Sentence Transformers để tương thích tokenizers của Chroma 0.5, và PostHog dưới 6 để giữ API telemetry mà Chroma 0.5 đang gọi. Việc này không đổi provider/model/dimensions runtime của bạn.
 
 Nguồn: [Render persistent disks](https://render.com/docs/disks), [prebuilt images & deploy hook](https://render.com/docs/deploying-an-image), [Blueprint reference](https://render.com/docs/blueprint-spec), [GitHub publishing Docker images](https://docs.github.com/en/actions/tutorials/publish-packages/publish-docker-images).
+
+## Groq trả 404 khi chat
+
+Nếu health/login hoạt động nhưng Groq trả 404, kiểm tra `CHATBOT_LLM_MODEL`. Lỗi `model_not_found` có thể là model không tồn tại hoặc API key/tài khoản không có quyền truy cập. Model có trên tài liệu công khai chưa chắc tài khoản của bạn gọi được. Ngày 14/10/2026, kiểm tra API key local của repo cho thấy `llama-3.1-8b-instant` không truy cập được; `openai/gpt-oss-20b` trả 200 và hỗ trợ JSON với `answer`/`suggest_items`. Cấu hình mẫu đã cập nhật sang model đã kiểm tra.
+
+```dotenv
+CHATBOT_LLM_PROVIDER=groq
+CHATBOT_LLM_MODEL=openai/gpt-oss-20b
+```
+
+Local: sửa `.env`, rồi chạy `docker compose up -d --force-recreate web` để nạp env mới; chỉ restart container cũ không cập nhật env Docker. Render: sửa Environment tương ứng rồi redeploy. Thay đổi `render.yaml` không tự thay env của service tạo thủ công. Không cần đổi model embedding Jina hoặc reset Chroma khi chỉ đổi model tạo câu trả lời.
+
+Backend Groq hiện dừng ngay với lỗi HTTP không thể khắc phục bằng retry (như 401/403/404/422) và trả thông tin model/error code; chỉ retry 429, 500/502/503/504 và lỗi kết nối/timeout. CI có regression test dùng API mock, không tiêu tốn quota.
+
+Nguồn: [Groq model API](https://console.groq.com/docs/models), [Groq error codes](https://console.groq.com/docs/errors).

@@ -59,6 +59,9 @@ jobs:
         run: |
           docker run --rm -v "$PWD/tests/deployment_smoke.py:/tmp/deployment_smoke.py:ro" restaurantbe:verify flake8 /tmp/deployment_smoke.py
           docker run --rm restaurantbe:verify python manage.py check
+          docker run --rm -v "$PWD/tests/test_render_hosts.py:/tmp/test_render_hosts.py:ro" restaurantbe:verify flake8 restaurantBE/health.py /tmp/test_render_hosts.py
+          docker run --rm -e PYTHONPATH=/app -v "$PWD/tests/test_render_hosts.py:/tmp/test_render_hosts.py:ro" restaurantbe:verify python /tmp/test_render_hosts.py
+          docker run --rm -e PYTHONPATH=/app -v "$PWD/tests/test_groq_errors.py:/tmp/test_groq_errors.py:ro" restaurantbe:verify python /tmp/test_groq_errors.py
           docker run --rm restaurantbe:verify python manage.py collectstatic --noinput
           docker run --rm restaurantbe:verify python -c 'import torch; from sentence_transformers import SentenceTransformer; assert torch.version.cuda is None'
           data_dir=$(mktemp -d)

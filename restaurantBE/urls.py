@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.contrib import admin
-from django.http import HttpResponse
 from django.urls import include, path, re_path
 
 from drf_yasg import openapi
@@ -8,21 +7,7 @@ from drf_yasg.views import get_schema_view
 
 from rest_framework import permissions
 
-from django.db import connection
-from django.http import JsonResponse
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
-
-
-@api_view(["GET", "HEAD"])
-@permission_classes([AllowAny])
-def health_check(request):
-    db_status = "ok"
-    try:
-        connection.ensure_connection()
-    except Exception:
-        db_status = "error"
-    return JsonResponse({"status": "ok", "db": db_status})
+from restaurantBE.health import health_check
 
 
 schema_view = get_schema_view(

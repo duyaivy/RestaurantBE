@@ -12,9 +12,19 @@ SECRET_KEY = os.getenv(
     "SECRET_KEY", "django-insecure-*$0b8ibx7uzk45cm+fxw7*jj(yzi2ye!l4+!dnyxa-u-nbuz=q"
 )
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", ".onrender.com,localhost,127.0.0.1").split(
-    ","
-)
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.getenv(
+        "ALLOWED_HOSTS", ".onrender.com,localhost,127.0.0.1"
+    ).split(",")
+    if host.strip()
+]
+# Render health checks use the service hostname (or a configured custom domain).
+# Include the platform hostname even when an imported env overrides the defaults.
+render_hostname = os.getenv("RENDER_EXTERNAL_HOSTNAME", "").strip()
+for host in (render_hostname, "localhost", "127.0.0.1"):
+    if host and host not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(host)
 HOST = os.getenv("HOST", "http://localhost:8000/")
 
 # Database
@@ -48,6 +58,34 @@ DATABASES = {
         "PORT": db_port,
         "OPTIONS": db_options,
     }
+}
+# Keep readiness probes and initial connections bounded when the DB is unreachable.
+DATABASES["default"]["OPTIONS"].setdefault("connect_timeout", 5)
+
+_log_level = os.getenv("LOG_LEVEL", "INFO").upper()
+if _log_level not in {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}:
+    _log_level = "INFO"
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "console": {"format": "%(asctime)s %(levelname)s [%(name)s] %(message)s"},
+    },
+    "handlers": {
+        "console": {"class": "logging.StreamHandler", "formatter": "console"},
+    },
+    "root": {"handlers": ["console"], "level": _log_level},
+    "loggers": {
+        "django": {"handlers": ["console"], "level": _log_level, "propagate": False},
+        # This also logs failures that reject requests before the health view runs.
+        "django.security.DisallowedHost": {
+            "handlers": ["console"], "level": "ERROR", "propagate": False,
+        },
+        "django.db.backends": {
+            "handlers": ["console"], "level": "WARNING", "propagate": False,
+        },
+    },
 }
 
 # CORS config

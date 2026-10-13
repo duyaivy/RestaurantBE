@@ -65,7 +65,7 @@ services:
       - key: CHATBOT_LLM_PROVIDER
         value: "groq"
       - key: CHATBOT_LLM_MODEL
-        value: "llama-3.1-8b-instant"
+        value: "openai/gpt-oss-20b"
       - key: GROQ_API_KEY
         sync: false
       - key: GEMINI_API_KEY
