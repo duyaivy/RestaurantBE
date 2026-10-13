@@ -50,8 +50,23 @@ dist/
 build/
 staticfiles/
 
-# ChromaDB (rebuilt on deploy)
+# ChromaDB lives on a runtime disk, never inside the image
 restaurantBE/chatbot/rag/.chroma/
+**/.chroma/
+*.sqlite3
+*.db
+
+# Local credentials and agent/editor history
+sinuous-maker-*.json
+*credentials*.json
+*.pem
+*.key
+.history/
+.agents/
+.claude/
+.codex/
+.aws/
+.github/
 
 # Local settings (keep production.py)
 restaurantBE/settings/local.py

@@ -2,11 +2,16 @@ services:
   # Web Service (Django API)
   - type: web
     name: restaurantbe-api
-    runtime: python
-    plan: free
-    branch: main
-    buildCommand: pip install -r requirements.txt
-    startCommand: bash build.sh
+    runtime: image
+    image:
+      url: ghcr.io/duyaivy/restaurantbe:release
+      # Private GHCR: add credentials in Render, then uncomment:
+      # creds:
+      #   fromRegistryCreds:
+      #     name: ghcr-read
+    # Persistent disks require paid compute. No account changes until applied.
+    plan: 0.5c-512mb
+    numInstances: 1
     healthCheckPath: /health/
     disk:
       name: chroma-data
@@ -17,6 +22,16 @@ services:
         value: restaurantBE.settings.production
       - key: ENV
         value: prod
+      - key: PORT
+        value: "10000"
+      - key: WEB_CONCURRENCY
+        value: "1"
+      - key: LOG_LEVEL
+        value: "info"
+      - key: DJANGO_DB_LOG_LEVEL
+        value: "WARNING"
+      - key: DJANGO_CACHE_TIMEOUT_DEFAULT
+        value: "3600"
       - key: SECRET_KEY
         generateValue: true
 
@@ -73,6 +88,18 @@ services:
         sync: false
       - key: CHATBOT_EMBEDDING_TIMEOUT_SECONDS
         value: "15"
+      - key: CHATBOT_EMBEDDING_DEVICE
+        value: "cpu"
+      - key: CHATBOT_EMBEDDING_BATCH_SIZE
+        value: "32"
+      - key: CHATBOT_EMBEDDING_NORMALIZE
+        value: "true"
+      - key: CHATBOT_EMBEDDING_BASE_URL
+        value: ""
+      - key: CHATBOT_LLM_BASE_URL
+        value: ""
+      # Optional provider secrets: set in Dashboard only when used.
+      # EMBEDDING_API_KEY, JINA_API_KEY, NVIDIA_API_KEY, OPENROUTER_API_KEY
       - key: CHATBOT_CHROMA_DIR
         value: "/var/data/chroma"
       - key: CHATBOT_CHROMA_COLLECTION

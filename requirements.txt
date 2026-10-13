@@ -50,4 +50,8 @@ uvicorn[standard]>=0.30.0
 google-genai==2.6.0
 httpx==0.28.1
 chromadb>=0.4.24,<0.6
-sentence-transformers>=2.7.0
+# Chroma 0.5 calls PostHog's legacy positional capture API.
+posthog>=2.4.0,<6
+# Chroma 0.5 uses tokenizers<=0.20.3; newer Transformers require newer tokenizers.
+sentence-transformers>=2.7.0,<4
+transformers>=4.41.0,<4.47

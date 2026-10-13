@@ -8,7 +8,10 @@ services:
     env_file:
       - .env
     environment:
-      - PORT=${PORT:-8000}
+      - PORT=8000
+      - DJANGO_SETTINGS_MODULE=restaurantBE.settings.production
+      - CHATBOT_CHROMA_DIR=/var/data/chroma
+      - WEB_CONCURRENCY=1
     ports:
       - "${PORT:-8000}:8000"
     volumes:
@@ -16,7 +19,7 @@ services:
       - .:/app
       - /app/__pycache__
       # Giữ dữ liệu vector Chroma và staticfiles
-      - chroma_data:/app/restaurantBE/chatbot/rag/.chroma
+      - chroma_data:/var/data/chroma
       - static_data:/app/staticfiles
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8000/health/ || exit 1"]

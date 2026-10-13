@@ -89,3 +89,9 @@ Open browser and access `localhost:8000/docs` to view swagger documentation
 </p>
 
 ### end
+
+## Deploy Render bằng Docker
+
+Xem [hướng dẫn GitHub Actions → GHCR → Render và giữ Chroma bằng persistent disk](docs/render-docker-deploy.md).
+
+Đã có service native Python trên Render? Xem [hướng dẫn chuyển service sang Docker image](docs/render-native-to-docker.md).
